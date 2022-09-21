@@ -1,4 +1,5 @@
 import React, {useState} from 'react';
+
 import Image from '../images/tangosweden.jpg';
 import { useNavigate } from 'react-router-dom';
 import Button from '@mui/material/Button';
@@ -6,28 +7,18 @@ import Button from '@mui/material/Button';
 
 const styles = {
     container:{
+        display:'flex',
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
         backgroundColor:'black',
+        color:'#FFFFA7',
         style:'absolute',
-        top:0,
-        width:'100%',
-        height:'100vh',
-    },
-    img:{
-        display:'block',
-        marginLeft:'auto', marginRight:'auto',
-        maxWidth:'100%',
-        maxHeight:'calc(80vh - 70px)',
-    },
-    buttonContainer:{
-        style:'absolute',
-        width:'100%',
-        height:'50vh',
-        width:'100%',
-        textAlign:'center',
-        color:'#FFFFA7'
+        height:'CALC(100vh \- 50px'
     },
     button:{
         borderWidth:'2px',
+        height:50,
         color:'#FFFFA7',
         borderColor:'#FFFF87',
         backgroundColor:'transparent'
@@ -43,21 +34,18 @@ const Home = () => {
 
     return(
         <div style={styles.container}>
-            <img style={styles.img} src={Image} onClick={()=>handleNavigate('/malmo')}/>
-            <div style={styles.buttonContainer}>
-                <p/>
-                <Button variant="outlined" type="button" style={styles.button}  onClick={()=>handleNavigate('/malmo')}>
-                    Malmö/Lund                    
+                <Button variant="outlined" type="button" style={styles.button}  onClick={()=>handleNavigate('/customer')}>
+                    Inlämning
                 </Button>    
-                &nbsp;
-                <Button variant="outlined" type="button" style={styles.button}  onClick={()=>handleNavigate('/denmark')}>
-                    Denmark                    
+
+                <Button variant="outlined" type="button" style={styles.button}  onClick={()=>handleNavigate('/order')}>
+                    Objektbeskrivnng
                 </Button>    
-                &nbsp;
-                <Button variant="outlined" type="button" style={styles.button}  onClick={()=>handleNavigate('/helsingborg')}>
-                    Helsingborg                    
+
+                <Button variant="outlined" type="button" style={styles.button}  onClick={()=>handleNavigate('/service')}>
+                    Service rapport
                 </Button>    
-             </div>
+
         </div>
     )
 }

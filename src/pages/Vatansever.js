@@ -2,6 +2,7 @@ import React, {useState, useEffect} from 'react';
 import  {Component } from 'react'
 import FormTemplate from '../components/FormTemplate';
 import EditTable from '../components/EditTable';
+import Search from '../components/Search';
 import Button from '@mui/material/Button';
 import {useLocation} from 'react-router-dom'
 import moment from 'moment-with-locales-es6'
@@ -28,6 +29,22 @@ const styles={
         border:'1px solid red'
     }    
 }
+
+const searchFields = [
+   {
+        name:'name',
+        placeholder:'Sök namn'   
+   },
+   {
+         name:'phone',
+         placeholder:'Sök telefon'   
+   },
+   {
+        name:'id',
+        placeholder:'Sök kundnummer'   
+   }
+]
+
 
 const viewTable = list =>
     <table>
@@ -174,7 +191,6 @@ export default (state) => {
         }    
     }     
    const handleDelete = (e, value) => {serverPost('/deleteRecord', '', '', {tableName, value}, handleReply)}
-   const handleGet = (e, value) => {alert('fetch list')}
    const handleUpdate =  (id) => {serverPost('/replaceRow', '', '', {tableName, record:list.find(it=>it.id === id)}, handleReply)}
    const handleEdit = ed => {
         const foundObj = Object.entries(edit).find(obj=>obj[1]===true)
@@ -182,43 +198,22 @@ export default (state) => {
             handleUpdate(foundObj[0])
         }   
         setEdit(ed)
-   }
-   const handleSearch = (e) => {
-    e.preventDefault()
-    let args =""
-    Object.entries(search).map(it=> {
-        args += '&'
-        args += it[0] +  '=' + it[1]
-    })    
-    const link = '/fetchRows?tableName=tbl_customer' + args
-    console.log('link:' + link)
-    serverFetch(link, '', '', list=>setList(list))    
-   };
-
+      }
    return (
         <div style={styles.container(color)}>
             <>
                 <h1>Vatansever Ljud</h1>
-                <form onSubmit={handleSearch}>
-                    <input type='text' name='name' value={search['name']} placeholder='Sök namn' onChange={e=>setSearch({...search, [e.target.name]:e.target.value})} /> 
-                    &nbsp;
-                    <input type='text' name='phone' value={search['phone']} placeholder='Sök telefonnummer' onChange={e=>setSearch({...search, [e.target.name]:e.target.value})} /> 
-                    &nbsp;
-                    <input type='text' name='id' value={search['id']} placeholder='Sök kundnummer' onChange={e=>setSearch({...search, [e.target.name]:e.target.value})} /> 
-                    &nbsp;
-                    <button type='submit>'>Sök</button>
-                </form>
+                <Search tableName={tableName} searchFields={searchFields} list={list} setList={setList} />
                 <FormTemplate 
                     init={init}
                     fields={fields} 
-                    handleGet={handleGet}
-                    handleUpdate={handleUpdate}
+                    handleSubmit={handleUpdate}
                     handleDelete={handleDelete}
                     submitTooltipTitle={'SPARA fältet'}
                     submitButtonText={'SPARA'}
                     update={true}
                 />
-                <EditTable list={list} setList={setList} edit={edit} setEdit={handleEdit} />
+                <EditTable list={list} setList={setList} edit={edit} handleEdit={handleEdit} />
                 </>
         </div>
     )

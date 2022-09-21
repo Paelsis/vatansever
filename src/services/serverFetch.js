@@ -13,14 +13,13 @@ export default function (irl, username, password, handleResult) {
         }
       })
     .then(response => {
-        //alert(JSON.stringify(response.data))
         const result = response.data?response.data.result?response.data.result:[]:[];
         handleResult(result);
     })
     .catch(e => {
-        alert(JSON.stringify(e))
-        console.log('(function: functions/fetch) URL:', url);
-        console.log('(function: functions/fetch) Error message:', e);
+        const errorMessage = 'url=' + url + ' ERROR:' + JSON.stringify(e)
+        alert(errorMessage)
+        console.log('(function: functions/fetch) Error message:', errorMessage);
         handleResult([]);
     });
 }

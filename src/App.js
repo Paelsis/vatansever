@@ -1,14 +1,8 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import CalendarByCity from "./pages/CalendarByCity";
-import CalendarMalmoLund from "./pages/CalendarMalmoLund";
 import Home from "./pages/Home";
-import Admin from "./pages/Admin";
-import Privacy from "./pages/Privacy";
+import Customer from "./pages/Customer";
+import Order from "./pages/Order";
 import Service from "./pages/Service";
-import Add from "./pages/Add";
-import Update from "./pages/Update";
-import PendingData from './pages/PendingData'
-import Vatansever from './pages/Vatansever'
 import AppBar from './components/AppBar'
 import FirebaseAuth from './login/FirebaseAuth'
 import FirebaseSignin from './login/FirebaseSignin';
@@ -62,26 +56,14 @@ export default function App() {
             <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/home" element={<Home />} />
-                <Route path="/calendar/:city" element={<CalendarByCity />} />
-                <Route path="/calendar" element={<CalendarByCity />} />
-                <Route path="malmo" element={<CalendarMalmoLund />} />
-                <Route path="lund" element={<CalendarMalmoLund />} />
-                <Route path="denmark" element={<RedirectTo url='http://www.tango.dk/milongas-practicas-events/' />} />
-                <Route path="helsingborg" element={<RedirectToMultiple Tangorama='https://www.tangorama.se/kalendar' Fortuna='https://www.tangofortuna.com/' />} />
-                <Route path="fortuna" element={<RedirectTo url='https://www.tangofortuna.com/' />} />
-                <Route path="tangorama" element={<RedirectTo url='https://www.tangorama.se/kalendar' />} />
-                <Route path="halmstad" element={<RedirectTo url='http://www.tangoexperimental.com/sv-SE' />} />
-                <Route path="gothenburg" element={<RedirectTo url={"https://teamup.com/ks863ac26a05ed5d28"} />} />
-                <Route path="gothenburgTest" element={<RedirectTo url={"https://teamup.com/ks863ac26a05ed5d28"} />} />
-                <Route path="stockholm" element={<PendingData />} />
-                <Route path="admin" element={<Admin/>} />
-                <Route path="privacy" element={<Privacy/>} />
-                <Route path="service" element={<Service />} />
-                <Route path="add" element={<Add />} />
-                <Route path="update" element={<Update />} />
+                <Route path="/customer" element={<Customer />} />
+                <Route path="/order" element={<Order />} />
+                <Route path="/order/:kundId/:namn" element={<Order />} />
+                <Route path="/service" element={<Service />} />
+                <Route path="/service/:orderId/:namn" element={<Service />} />
+                <Route path="/service/:orderId/:namn" element={<Service />} />
                 <Route path="signin" element={<FirebaseSignin />} />
                 <Route path="resetPassword" element={<FirebaseResetPassword />} />
-                <Route path="Vatansever" element={<Vatansever />} />
                 <Route
                     path="*"
                     element={

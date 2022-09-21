@@ -18,6 +18,7 @@ import { getAuth, signOut, onAuthStateChanged} from 'firebase/auth';
 import {AuthContext} from "../login/FirebaseAuth"
 
 
+
 export default function ButtonAppBar() {
   const [email, setEmail] = useState(undefined)
   const [anchorEl, setAnchorEl] = useState(null);
@@ -61,11 +62,6 @@ export default function ButtonAppBar() {
         'aria-labelledby': 'basic-button',
       }}
     >
-      <MenuItem onClick={()=>handleNavigate('/malmo')}>Malmö/Lund</MenuItem>
-      <MenuItem onClick={()=>handleNavigate('/denmark')}>Denmark</MenuItem>
-      <MenuItem onClick={()=>handleNavigate('/helsingborg')}>Helsingborg</MenuItem>
-      <MenuItem onClick={()=>handleNavigate('/halmstad')}>Halmstad</MenuItem>
-      <MenuItem onClick={()=>handleNavigate('/gothenburg')}>Gothenburg</MenuItem>
       <MenuItem><ListItemText inset></ListItemText></MenuItem>
       <Divider />
       {email?<MenuItem onClick={()=>handleSignout()}>Signout</MenuItem>
