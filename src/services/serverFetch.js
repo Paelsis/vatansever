@@ -11,7 +11,7 @@ export default function (irl, username, password, handleResult) {
             username,
             password,
         }
-      })
+    })
     .then(response => {
         const result = response.data?response.data.result?response.data.result:[]:[];
         handleResult(result);

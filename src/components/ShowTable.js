@@ -31,3 +31,13 @@ export default ({list, init, handleOpen, style}) =>
   :null}
 </div>
 
+export const ShowValue = ({value}) =>
+<table>
+    <tbody>
+    {Object.values(value).map(it =>
+        <tr>
+            <td>{it}</td>
+        </tr>
+    )}
+    </tbody>
+</table>

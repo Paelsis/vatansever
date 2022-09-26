@@ -24,24 +24,19 @@ const styles={
 
   
 export default props => {
-    const [style, setStyle] = useState(props.style?props.style:{color:'blue', borderColor:'blue'})
     const [edit, setEdit] = useState([])
-    const {tableName, list, setList, fields, constants, setStatus, handleOpen} = props;
+    const {searchFields, tableName, list, setList, fields, constants, statusMessage} = props;
 
         
     const handleReplySave = reply => {
         if (reply.status==='OK') {
-            setStyle({color:'blue', borderColor:'blue'})
             setEdit({})
-            setStatus('Kund med id=' + reply.id + ' ändrad')
+            statusMessage('green', 'Data sparade med id=' + reply.id)
         } else {
-            setStatus('Fel vid ändring av kund-data. Meddelande:' + JSON.stringify(reply))
-            setStyle({color:'red', borderColor:'red'})
+            statusMessage('green', 'Fel vid sparande av data. Meddelande:' + JSON.stringify(reply))
         }    
     }    
     const handleSave = record => {
-        setStyle({color:'orange', borderColor:'orange'})
-        setStatus('Sätt in i databasen ...'); 
         let recordSave = {}
         if (fields) {
             fields.forEach(it => {
@@ -62,11 +57,9 @@ export default props => {
         if (reply.status==='OK') {
             const id=reply.id
             setList(list.filter(it=>it.id !==id))
-            setStyle({color:'green', borderColor:'green'})
-            setStatus('Rad med id=' + id + ' borttagen')
+            statusMessage('green', 'Rad med id=' + id + ' borttagen')
         } else {
-            setStatus('Fel vid borttagande av kund. Meddelande:' + JSON.stringify(reply))
-            setStyle({color:'red', borderColor:'red'})
+            statusMessage('green', 'Fel vid borttagande av kund. Meddelande:' + JSON.stringify(reply))
         }    
     }    
     const handleDelete = id => {
@@ -74,7 +67,7 @@ export default props => {
         let text = "Tag bort bort id=" + id + ' från tabell ' + tableName + "\nVälj OK eller Cancel."
         // eslint-disable-next-line no-restricted-globals
         if (confirm(text)) {
-            setStatus('Remove from database ...'); 
+            statusMessage('green', 'Remove from database ...'); 
             serverPost('/deleteRow', '', '', {tableName:'tbl_customer', 'id':id}, handleReplyDelete)
         }
     }
@@ -99,47 +92,58 @@ export default props => {
         }   
     }    
 
+    const renderHeader = row => {
+        return(
+            searchFields?
+                searchFields.map(fld=><th>{fld.label?fld.label:fld.name}</th>)
+            :<h4>No searchFields</h4>)    
+
+    }    
+
     const renderRow = row => {
-        
-    return(
-            <tr>
-                {Object.entries(row).filter(it=>constants?constants[it[0]]?false:true:true).map(obj =>
-                    <td>
-                        {(edit[row.id]===true) && (obj[0] !=='id') && (obj[0] !== 'creaTimestamp' && obj[0] !== 'updTimestamp') && (constants?constants[row.name]?false:true:true)?
-                            <input type='text' name={obj[0]} value={obj[1]} onChange={e=>handleChange(e, row.id)} />
-                        :
-                        obj[1]}
-                    </td>)
-                }
-                {setEdit?
-                    <td>
-                        {edit[row.id]===true?<SaveIcon onClick={()=>toggleEdit(row.id)} />:<EditIcon onClick={()=>toggleEdit(row.id)} />}
-                    </td>
-                :
-                    null        
-                }
-                {handleDelete?
-                    <td>
-                        <DeleteIcon onClick={()=>handleDelete(row.id)} />
-                    </td>
-                :
-                    null        
-                }
-                {props.handleEdit?
-                    <td>
-                        <ArrowUpwardIcon onClick={()=>props.handleEdit(row)} />
-                    </td>
-                :
-                    null        
-                }
-                {props.handleOpen?
-                    <td>
-                        <OpenInNewIcon onClick={()=>props.handleOpen(row.id)} />
-                    </td>
-                :
-                    null        
-                }
-            </tr>
+        return(
+            searchFields?
+                <tr>
+                    {searchFields.map(fld=>
+                        <td>
+                            {(edit[row.id]===true)?
+                                <input type='text' name={fld} value={row[fld.name]?row[fld.name]:null} onChange={e=>handleChange(e, row.id)} />
+                            :
+                                row[fld.name]?row[fld.name]:null
+                            }
+                        </td>
+                    )}
+                    {!props.handleUpArrow?
+                        <td>
+                            {edit[row.id]===true?<SaveIcon onClick={()=>toggleEdit(row.id)} />:<EditIcon onClick={()=>toggleEdit(row.id)} />}
+                        </td>
+                    :
+                        null        
+                    }
+                    {handleDelete?
+                        <td>
+                            <DeleteIcon onClick={()=>handleDelete(row.id)} />
+                        </td>
+                    :
+                        null        
+                    }
+                    {props.handleUpArrow?
+                        <td>
+                            <ArrowUpwardIcon onClick={()=>props.handleUpArrow(row)} />
+                        </td>
+                    :
+                        null        
+                    }
+                    {props.handleRedirect?
+                        <td>
+                            <OpenInNewIcon onClick={()=>props.handleRedirect(row)} />
+                        </td>
+                    :
+                        null        
+                    }
+                </tr>
+            :
+                null
         )
     }
 
@@ -154,20 +158,23 @@ export default props => {
     }
 
     return (
-        list.length > 0?
+        list?list.length > 0?
             <div>
                 <>
-                    <table style={{border:'1px solid lightGrey', margin:10}}>
+                    <table style={{border:'1px solid lightGrey', margin:10, maxWidth:'50vh'}}>
                         <thead style={{bottomBorder:'1px solid lightGrey', margin:10}}>
-                            {Object.entries(list[0]).filter(it=>constants?constants[it[0]]?false:true:true).map(it=><th>{getLabel(it[0])}</th>)}
+                            {renderHeader(list[0])}
                         </thead>
                         <tbody style={{border:'1px solid lightGrey', margin:10}}>
-                            {list.map(li=>renderRow(li))}    
+                            {list.map(li=>
+                                renderRow(li)
+                            )}    
                         </tbody>
                     </table>
                 </>
         </div>
-        :null
+        :
+            null:null
     )
 }
 

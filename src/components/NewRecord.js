@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import FormTemplate from './FormTemplate';
 import serverPost from '../services/serverPost'
-import serverFetch from '../services/serverFetch';
+import missingColumns from '../services/missingColumns'
 //const init={name:'Per Eskilson', email:'paelsis@hotmail.com', phone:'0733780740'}
 
 const ShowValue = ({value}) =>
@@ -17,26 +17,9 @@ const ShowValue = ({value}) =>
 
 // NewRecord  
 export default props => {
-   const [style, setStyle] = useState({})
-   const [columns, setColumns] = useState([])
-   const {tableName, list, setList, constants, value, fields, handleToggle, setStatus, handleRedirect} = props
+   const {tableName, list, setList, constants, statusMessage, handleRedirect} = props
 
-   useEffect(()=>{
-        const link = '/getColumns?tableName=' + props.tableName
-        serverFetch(link, '', '', cols=>{
-            if (cols.length > 0) {
-                const dbColumns = cols.filter(it => it.Type !== 'timestamp' && it.Key !== 'PRI')
-                setColumns(dbColumns)
-                    //.filter(it=>(it.Type?it.Type !== 'timestamp':true && it.Key?it.Key !== 'PRI':true)))
-            } else {
-                setColumns([])
-            }
-        })   
-    }, [])
-
-
-
-    const _dbRecord = (constants, record) => {
+   const _dbRecord = (constants, record) => {
         let dbRecord = record
         Object.entries(record).forEach(it => {
             if (it[1]===true) {
@@ -67,25 +50,24 @@ export default props => {
                     setList([...list, reply.record])
                 }    
 
-                setStyle({color:'blue', borderColor:'blue'})
-                setStatus('Saved in database with id ' + reply.id)
-                if (handleRedirect) {
+                if (props.handleSave) {
+                    handleSave(reply.record)
+                } if (handleRedirect) {
                     handleRedirect(reply.record)
-                }    
+                } else if (statusMessage) {
+                    statusMessage('green', 'Sparad i databasen med id ' + reply.id)
+                }
             } else {
-                setStyle({color:'blue', borderColor:'blue'})
-                setStatus('Values could not be inserted, reply:' + reply)
+                statusMessage('green', 'Values could not be inserted, reply:' + reply)
             }  
         } else {
-            setStatus('Error when insering. Reply message:' + JSON.stringify(reply))
-            setStyle({color:'red', borderColor:'red'})
+            statusMessage('green', 'Error when insering record. Reply message:' + JSON.stringify(reply))
         }    
     }    
 
     const handleSubmit = (e, record) => {
         e.preventDefault(); 
-        setStyle({color:'orange', borderColor:'orange'})
-        setStatus('Insert into database record:' + JSON.stringify(record)) 
+        statusMessage('green', 'Insert into database record:' + JSON.stringify(record)) 
         serverPost('/replaceRow', '', '', {tableName:tableName, record:_dbRecord(constants, record)}, handleReply)
     }
 
@@ -93,23 +75,26 @@ export default props => {
         if (reply.status==='OK') {
             const id=reply.id
             setList(list.filter(it=>it.id !==id))
-            setStyle({color:'blue', borderColor:'blue'})
-            setStatus('Record with id=' + id + ' removed')
+            if (statusMessage) {
+                statusMessage('green', 'Record with id=' + id + ' removed')
+            }    
         } else {
-            setStatus('Fel vid borttagande av kund. Meddelande:' + JSON.stringify(reply))
-            setStyle({color:'red', borderColor:'red'})
+            if (statusMessage) {
+                statusMessage('green', 'Fel vid borttagande av kund. Meddelande:' + JSON.stringify(reply))
+            }    
         }    
     }    
     const handleDelete = id => {
-        setStyle({color:'orange', borderColor:'orange'})
-        setStatus('Remove from database ...'); 
+        if (statusMessage) {
+            statusMessage('green', 'Remove from database ...'); 
+        }    
         serverPost('/deleteRow', '', '', {tableName:tableName, 'id':id}, handleReplyDelete)
     }
 
 
     return (
         <div >
-            <FormTemplate fields={fields} columns={columns} value={value} handleSubmit={handleSubmit} handleToggle={handleToggle} setStatus={setStatus} update={true}/>
+            <FormTemplate {...props} handleSubmit={handleSubmit} />
         </div>       
     )
 }

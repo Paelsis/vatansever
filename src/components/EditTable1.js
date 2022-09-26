@@ -4,7 +4,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import FileOpenIcon from '@mui/icons-material/FileOpen';
 
-export default ({list, setList, edit, setEdit, handleDelete, handleSave, handleOpen}) => {
+export default ({searchFields, list, setList, edit, setEdit, handleDelete, handleSave, handleOpen}) => {
 
     const handleChange = (e, id) => setList(list.map(it=>{
             if (it.id===id) {

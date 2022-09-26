@@ -1,6 +1,5 @@
 import React, {useState, useEffect} from 'react';
 import serverFetch from '../services/serverFetch';
-import serverPost from '../services/serverPost'
 import getTypeFromColumnType from '../services/getTypeFromColumnType'
 import Button from '@mui/material/Button';
 
@@ -20,30 +19,8 @@ export default props =>
 {    
     const [value, setValue] = useState({})
     const [columns, setColumns] = useState([])
-    const {searchView, tableName, constants, fields, setStatus, setList, handleToggle} = props
+    const {searchFields, tableName, constants, fields, statusMessage, setList, handleUpArrow} = props
 
-    const searchRecords = searchValues =>
-    {
-        let args =""
-        Object.entries(searchValues).map(it=> {
-            if (it[1]) {
-                args += '&'
-                args += it[0] +  '=' + it[1]
-            }
-        })
-        const link = '/fetchRows?tableName=' + searchView + args
-        if (setStatus) {setStatus('Searching ...')}
-        setList([])
-        serverFetch(link, '', '', list=>{
-            if (list.length > 0) {
-                if (setStatus) {setStatus('')}
-                setList(list.sort((a,b) => b.id - a.id))
-            } else {
-                if (setStatus) {setStatus('Not found')}
-            }   
-        })
-    }        
-    
     useEffect(()=>{
         const link = '/getColumns?tableName=' + tableName
         serverFetch(link, '', '', cols=>{
@@ -54,11 +31,30 @@ export default props =>
                 setColumns([])
             }
         })   
-        setValue(props.value?props.value:{})
-        if (!!constants) {
-            searchRecords(constants)
-        }    
-    },[searchView, fields])
+    },[])
+
+    const searchRecords = searchValues =>
+    {
+        let args =""
+        Object.entries(searchValues).map(it=> {
+            if (it[1]) {
+                args += '&'
+                args += it[0] +  '=' + it[1]
+            }
+        })
+        const link = '/fetchRows?tableName=' + searchFields + args
+        if (statusMessage) {statusMessage('green', 'Searching ...')}
+        setList([])
+        serverFetch(link, '', '', list=>{
+            if (list.length > 0) {
+                if (statusMessage) {statusMessage('green', '')}
+                setList(list.sort((a,b) => b.id - a.id))
+            } else {
+                if (statusMessage) {statusMessage('green', 'Not found')}
+            }   
+        })
+    }        
+    
 
     const handleSearch = e => {
         e.preventDefault()
@@ -67,10 +63,14 @@ export default props =>
     }    
 
     const renderField = fld =>
-    <>
-        <input type={fld.type?fld.type:'text'} name={fld.name} value={value[fld.name]?value[fld.name]:undefined} placeholder={fld.label?fld.label:fld.name} onChange={handleChange} />
-        &nbsp;
-    </>
+    {
+        return(
+            <>
+                <input type={fld.type?fld.type:'text'} name={fld.name} value={value[fld.name]?value[fld.name]:undefined} placeholder={fld.label?fld.label:fld.name} onChange={handleChange} />
+                &nbsp;
+            </>
+        )
+    }
 
     const handleChange = e => setValue({...value, [e.target.name]:e.target.value})
     const dynamicFields = fields.filter(it=>constants?constants[it.name]?false:true:true)
@@ -91,9 +91,9 @@ export default props =>
                 )
                 }
                 <Button type='submit' color="inherit" variant="outlined" >Sök</Button>
-                {handleToggle?<Button type='button' color="inherit" variant="outlined" onClick={()=>handleToggle(value)}>Skapa ny</Button>:null}
+                {handleUpArrow?<Button type='button' color="inherit" variant="outlined" onClick={()=>handleUpArrow(value)}>Skapa ny</Button>:null}
             </form>
-        :<h3>No search columns</h3>}
+        :<h3>Väntar på data ...</h3>}
         </>   
     )
 }

@@ -34,17 +34,18 @@ const Home = () => {
 
     return(
         <div style={styles.container}>
-                <Button variant="outlined" type="button" style={styles.button}  onClick={()=>handleNavigate('/customer')}>
+                <Button variant="outlined" type="button" style={styles.button}  onClick={()=>handleNavigate('/newCustomer')}>
                     Inlämning
                 </Button>    
-
-                <Button variant="outlined" type="button" style={styles.button}  onClick={()=>handleNavigate('/order')}>
-                    Objektbeskrivnng
+                &nbsp;
+                <Button variant="outlined" type="button" style={styles.button}  onClick={()=>handleNavigate('/serviceReport')}>
+                    Servicerapport 
+                </Button>    
+                &nbsp;
+                <Button variant="outlined" type="button" style={styles.button}  onClick={()=>handleNavigate('/extradition')}>
+                    Utlämning 
                 </Button>    
 
-                <Button variant="outlined" type="button" style={styles.button}  onClick={()=>handleNavigate('/service')}>
-                    Service rapport
-                </Button>    
 
         </div>
     )

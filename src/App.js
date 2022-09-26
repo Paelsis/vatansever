@@ -1,8 +1,9 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
-import Customer from "./pages/Customer";
-import Order from "./pages/Order";
-import Service from "./pages/Service";
+import NewCustomer from "./pages/NewCustomer";
+import NewOrder from "./pages/NewOrder";
+import ServiceReport from "./pages/ServiceReport";
+import Extradition from "./pages/Extradition";
 import AppBar from './components/AppBar'
 import FirebaseAuth from './login/FirebaseAuth'
 import FirebaseSignin from './login/FirebaseSignin';
@@ -56,12 +57,11 @@ export default function App() {
             <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/home" element={<Home />} />
-                <Route path="/customer" element={<Customer />} />
-                <Route path="/order" element={<Order />} />
-                <Route path="/order/:kundId/:namn" element={<Order />} />
-                <Route path="/service" element={<Service />} />
-                <Route path="/service/:orderId/:namn" element={<Service />} />
-                <Route path="/service/:orderId/:namn" element={<Service />} />
+                <Route path="/newCustomer" element={<NewCustomer />} />
+                <Route path="/serviceReport" element={<ServiceReport />} />
+                <Route path="/extradition" element={<Extradition />} />
+                <Route path="/newOrder/:kundId/:namn" element={<NewOrder />} />
+                <Route path="/newOrder/:kundId/:namn/:mobil" element={<NewOrder />} />
                 <Route path="signin" element={<FirebaseSignin />} />
                 <Route path="resetPassword" element={<FirebaseResetPassword />} />
                 <Route

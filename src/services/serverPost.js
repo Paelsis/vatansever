@@ -22,12 +22,12 @@ const serverPost = (irl, username, password, data, handleReply) => {
         } else {    
             console.log('WARNING: serverPost responed back status code:', response.status);
         }    
-        handleReply(response.data);
+        return handleReply(response.data);
     })
     .catch((e) => {
         console.log('ERROR: Failed in function serverPost for url ', url);
         console.log('Error message:', e); // Error
-        handleReply({code:501, status:'ERROR', message:'ERROR: No response when calling irl:' + irl + ' url:' + url});
+        return handleReply({code:501, status:'ERROR', message:'ERROR: No response when calling irl:' + irl + ' url:' + url});
     });
 }
 

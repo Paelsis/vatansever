@@ -1,33 +1,12 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import Button from '@mui/material/Button';
-import moment from 'moment-with-locales-es6'
+import FormField from './FormField';
 import getTypeFromColumnType from '../services/getTypeFromColumnType'
-import Tooltip from '@mui/material/Tooltip';
-import IconButton from '@mui/material/IconButton';
-import SaveIcon from '@mui/icons-material/Save';
-import RteEditor from './RteEditor'
-import {isAndroidOperatingSystem} from '../services/isAndroid'
-import FormField, {RenderField1} from './FormField'
+import {BUTTONS} from '../services/constants'
+import ReactToPrint from 'react-to-print';
 
 const TEXTS={
     BUTTON:'Send registration'
-}
-
-const DEV_TEST_OBJECT = {
-    title:'Test titel',
-    description:'Test desc ...',
-    startDate:moment().format('YYYY-MM-DD'),
-    startTime:'19:00',
-    endTime:'20:30',
-    location:'Malmö',
-    repeat:false,
-}
-
-const PROD_OBJECT = {
-    repeat:false,
-    frequency:1,
-    interval:'weeks',
-    until:moment().add(4, 'weeks').add(1,'days').format('YYYY-MM-DD')
 }
 
 const getField = column => {
@@ -36,42 +15,64 @@ const getField = column => {
     return {type, name, label:name, tooltip:'No helptext', names:undefined,  required:false}
 }    
 
-const FormTemplate = props => {
-    const [value, setValue] = useState({})
-    const {fields, columns, handleSubmit, handleToggle} = props
-    const foundName = name => columns?columns.length > 0?columns.find(it=>it.Field === name)?true:false:true:true
+// FormTemplate.js
+export default props => {
+    const componentRef=useRef()
+    const [value_local, setValue_local] = useState({})
+    const {fields, handleSearch, setList, buttons, handleSave, setStatus} = props
+    const value = props.value?props.value:value_local
+    const setValue = props.setValue?props.setValue:setValue_local
 
-    useEffect(()=>{
-        if (props.value) {
-            setValue(props.value)
-        }    
-    }, [props.value])
+    const handleSubmit = (e, value) => {
+        e.preventDefault()        
 
+        handleSave(value)
+    }
+
+    const handleRensa = () => {
+        setList([])
+        setValue({})
+    }    
     
-   
     return(
-        <form onSubmit={e=>handleSubmit(e, value)}>
-                {fields?
-                    fields.map(fld => 
-                        foundName(fld.name)?
-                           <FormField fld={fld} value={value} setValue={setValue} />
-                        :    
-                            <p style={{color:'red'}}>{fld.label}:Variablen {fld.name} saknas i tabell-definitionen</p>
-                    )
-                :columns?
-                    columns.length === 0 ?<h3 >No fields and no columns</h3>:<h3 >No fields and no columns</h3>
-                    :columns.map(col => <FormField fld={getField(col)} value={value} setValue={setValue} />)
-                } 
-                <Button color="inherit" type="submit" variant="outlined" >Spara</Button>
-                &nbsp;
-                {handleToggle?<Button color="inherit" type="button" onClick={()=>handleToggle(value)} variant="outlined" >Sök</Button>:null}
-                &nbsp;
-                <Button color="inherit" type="button" onClick={()=>setValue({})} variant="outlined" >Clear</Button>
-        </form>
+        <div>
+                <form onSubmit={e=>handleSubmit(e, value)}>
+                    <div ref={componentRef}>
+                    {props.children}
+                    {fields.map(fld => 
+                        <FormField fld={fld} value={value} setValue={setValue} />
+                    )}
+                    </div>
+                    {handleSearch?<><Button color="inherit" type="button" variant="outlined" onClick={()=>handleSearch(value)} >Sök</Button>&nbsp;</>:null}
+                    {buttons&BUTTONS.SAVE?<><Button color="inherit" type="submit" variant="outlined" >Spara</Button>&nbsp;</>:null}    
+                    {buttons&BUTTONS.PRINT?
+                        <>
+                        <ReactToPrint
+                            trigger={() => <Button color="inherit" type="button" variant="outlined">Skriv ut</Button>}
+                            onAfterPrint={()=>setStatus('green', 'Print is ready')}
+                            onPrintError={()=>setStatus('red', 'Print failed')}
+                            content={() => componentRef.current} 
+                        />
+                        &nbsp;
+                        </>
+                    :null}
+                    {buttons&BUTTONS.SAVE_AND_PRINT?
+                        <>
+                        <ReactToPrint
+                            trigger={() => <Button color="inherit" type="button" variant="outlined">Skriv ut</Button>}
+                            onBeforeGetContent={()=>handleSave(value)}
+                            onAfterPrint={()=>setStatus('green', 'Print is ready')}
+                            onPrintError={()=>setStatus('red', 'Print failed')}
+                            content={() => componentRef.current} 
+                        />
+                        &nbsp;
+                        </>
+                    :null}
+                    <Button color="inherit" type="button" variant="outlined" onClick={()=>handleRensa()}>Rensa</Button>
+                </form>
+        </div>
     )
 }
-//:columns.map(col => <RenderField1 fld={getField(col)} value={value[col.Field]} setValue={setValue} />)
 
 
-export default FormTemplate
 
