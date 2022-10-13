@@ -20,11 +20,33 @@ const styles = {
 const fields = [
     {
         type:'radio',
-        radioValues:['Okhan', 'Johannes', 'Mats', 'Annan Person'],
-        label:'Utlämnad av',
-        name:'utlamnadAv',
-        tooltip:'Den tekniker som lämntat tillbaka varan',
+        radioValues:['Okhan', 'Johannes', 'Mats'],
+        label:'Utlämnat av',
+        name:'utlamnatAv',
+        tooltip:'Namn på personen som lämnar tillbaka objektet efter reparation eller kostnadsförslag',
         required:true,
+        hiddenIf:'annanPerson'
+    },
+    {
+        type:'text',
+        label:'Utlämnat av',
+        name:'utlamnatAv',
+        tooltip:'Namn på personen som lämnar tillbaka objektet efter reparation eller kostnadsförslag',
+        required:true,
+        notHiddenIf:'annanPerson'
+    },
+    {
+        type:'checkbox',
+        label:'Annan',
+        name:'annanPerson',
+        tooltip:'Om den som utämnar reparerat gods är en annnan person än de 3 ovan nämnda',
+    },
+    {
+        type:'date',
+        label:'Dagens datum',
+        name:'utlamnadDatum',
+        tooltip:'Datum då inlämnat objekt lämnas tillbaka till kunden',
+
     },
     {
         type:'checkbox',
@@ -34,16 +56,10 @@ const fields = [
 
     },
     {
-        type:'number',
+        type:'text',
         label:'Totalt belopp i SEK',
         name:'belopp',
         tooltip:'Totalt belopp för reparationen',
-    },
-    {
-        type:'checkbox',
-        label:'Kunden har betalt hela beloppet',
-        name:'harBetalt',
-        tooltip:'Kunden har betalat för reparationen',
     },
 ]
 
@@ -119,7 +135,7 @@ export const Kalle = () =>  {
     
     return(    
         <div style={styles.container}>
-            {constants?constants.id?<h3>{'Service rapport för id:' + constants.id + ' namn:' + constants.namn}</h3>:null:null}
+            {<h3>{'Utläming'}</h3>}
             <NewAndSearchLine 
                     tableName={tableName} 
                     searchView={searchView}
@@ -130,12 +146,17 @@ export const Kalle = () =>  {
                     list={list} 
                     setList={setList} 
                     statusMessage={statusMessage}
-                    buttons={BUTTONS.SAVE|BUTTONS.PRINT}
+                    buttons={BUTTONS.SAVE_AND_PRINT}
                     onBeforePrint={onBeforePrint}
             >
-                {value?value.id?<h3>Service rapport:{value.id}</h3>:null:null} 
+                {value?value.id?<h3>Inläminingsnummer:{value.id}</h3>:null:null} 
                 {value?value.namn?<span>Namn:{value.namn}</span>:null:null}&nbsp;&nbsp; 
                 {value?value.mobil?<span>Mobil:{value.mobil}</span>:null:null} 
+                <h4>Åtgärder:</h4>
+                <div dangerouslySetInnerHTML={{__html: value?value.atgarder?value.atgarder:'':''}} />
+                <h4>Material:</h4>
+                <div dangerouslySetInnerHTML={{__html: value?value.material?value.material:'':''}} />
+                <p/>
             </NewAndSearchLine>
             <EditTable 
                     searchFields={searchFields}

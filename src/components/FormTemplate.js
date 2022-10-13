@@ -1,9 +1,11 @@
 import React, {useState, useRef, useEffect} from 'react';
+import { useNavigate } from 'react-router-dom';
 import Button from '@mui/material/Button';
 import FormField from './FormField';
 import getTypeFromColumnType from '../services/getTypeFromColumnType'
 import {BUTTONS} from '../services/constants'
 import ReactToPrint from 'react-to-print';
+
 
 const TEXTS={
     BUTTON:'Send registration'
@@ -18,38 +20,39 @@ const getField = column => {
 // FormTemplate.js
 export default props => {
     const componentRef=useRef()
+    const navigate = useNavigate()
     const [value_local, setValue_local] = useState({})
     const {fields, handleSearch, setList, buttons, handleSave, setStatus} = props
     const value = props.value?props.value:value_local
     const setValue = props.setValue?props.setValue:setValue_local
 
-    const handleSubmit = (e, value) => {
-        e.preventDefault()        
-
-        handleSave(value)
-    }
-
     const handleRensa = () => {
         setList([])
         setValue({})
     }    
+
+    const handleKeyPress = e => {
+        if (e.key === 'Enter') {
+            handleSearch(value)
+        }
+    }
     
     return(
         <div>
-                <form onSubmit={e=>handleSubmit(e, value)}>
+                <form>
                     <div ref={componentRef}>
                     {props.children}
                     {fields.map(fld => 
-                        <FormField fld={fld} value={value} setValue={setValue} />
+                        <FormField key={fld} fld={fld} value={value} setValue={setValue} handleKeyPress={handleKeyPress} />
                     )}
                     </div>
                     {handleSearch?<><Button color="inherit" type="button" variant="outlined" onClick={()=>handleSearch(value)} >Sök</Button>&nbsp;</>:null}
-                    {buttons&BUTTONS.SAVE?<><Button color="inherit" type="submit" variant="outlined" >Spara</Button>&nbsp;</>:null}    
+                    {buttons&BUTTONS.SAVE?<><Button color="inherit" type="button" variant="outlined" onClick={()=>handleSave(value)} >Spara</Button>&nbsp;</>:null}    
                     {buttons&BUTTONS.PRINT?
                         <>
                         <ReactToPrint
                             trigger={() => <Button color="inherit" type="button" variant="outlined">Skriv ut</Button>}
-                            onAfterPrint={()=>setStatus('green', 'Print is ready')}
+                            onAfterPrint={()=>navigate('/home')}
                             onPrintError={()=>setStatus('red', 'Print failed')}
                             content={() => componentRef.current} 
                         />
@@ -60,8 +63,7 @@ export default props => {
                         <>
                         <ReactToPrint
                             trigger={() => <Button color="inherit" type="button" variant="outlined">Skriv ut</Button>}
-                            onBeforeGetContent={()=>handleSave(value)}
-                            onAfterPrint={()=>setStatus('green', 'Print is ready')}
+                            onAfterPrint={()=>navigate('/home')}
                             onPrintError={()=>setStatus('red', 'Print failed')}
                             content={() => componentRef.current} 
                         />

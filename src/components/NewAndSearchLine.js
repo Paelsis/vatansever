@@ -52,7 +52,7 @@ export default props => {
                 statusMessage('orange', 'WARNING: Values could not be inserted, reply:' + reply)
             }  
         } else {
-            statusMessage('red', 'Error when insering record. Reply message:' + JSON.stringify(reply.message))
+            statusMessage('red', 'NewAndSearchLineError when inserting record. Reply message:' + JSON.stringify(reply.message))
         }    
     }    
 
@@ -92,7 +92,7 @@ export default props => {
     return (
         <div >
             <SearchLineTemplate {...props} handleSave={handleSave} handleSearch={searchFields?handleSearch:undefined} />
-            <FormTemplate {...props} handleSave={handleSave} />
+            {list.length === 0?<FormTemplate {...props} handleSave={handleSave} />:null}
         </div>       
     )
 }

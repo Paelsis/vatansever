@@ -41,9 +41,9 @@ const fields = [
     },
     {
         type:'checkbox',
-        label:'Mottagaren är annan person än de 3 ovan nämnda',
+        label:'Annan',
         name:'annanPerson',
-        tooltip:'Fabrikat på inlämnad apparat',
+        tooltip:'Om mottagaren är annan person än dem som det finns radioknapp till ovan',
     },
     {
         type:'text',
@@ -98,10 +98,10 @@ const tableName = 'tbl_order'
 export default () => {
     const params = useParams()
     const navigate = useNavigate()
-    const kundId = params.kundId?params.kundId:undefined
+    const orderId = params.orderId?params.orderId:undefined
     const namn = params.namn?params.namn:undefined
     const mobil = params.mobil?params.mobil:undefined
-    const constants=namn?{kundId, namn}:undefined
+    const constants=namn?{orderId, namn}:undefined
     const [list, setList] = useState([])
     const [value, setValue] = useState({})
     const [mode, setMode] = useState(MODE.NEW)
@@ -139,18 +139,18 @@ export default () => {
                 <NewOrSearch
                     tableName={tableName} 
                     fields={fields} 
-                    value={value} 
+                    value={orderId?{...value, id:orderId}:value} 
                     headerFields={headerFields}
                     setValue={setValue}
                     list={list} 
                     setList={setList} 
                     statusMessage={statusMessage}  
-                    buttons={BUTTONS.SAVE|BUTTONS.PRINT}
+                    buttons={BUTTONS.SAVE_AND_PRINT}
                 >
-                    {value?value.id?<h1 style={{margin:'auto'}}>{value.id}</h1>:null:null}
-                    {namn?<span style={{fontSize:20}}>Namn:{namn}</span>:null} 
+                    {orderId?<h1 style={{margin:'auto'}}>{orderId}</h1>:null}
+                    {namn?<span style={{fontSize:20}}>{namn}</span>:null} 
                     &nbsp;&nbsp;
-                    {mobil?<span style={{fontSize:20}}>Mobil:{mobil}</span>:null} 
+                    {mobil?<span style={{fontSize:20}}>Tel:{mobil}</span>:null} 
                 </NewOrSearch> 
                 <EditTable 
                     tableName={tableName} 

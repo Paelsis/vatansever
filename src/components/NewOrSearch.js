@@ -1,9 +1,7 @@
-import React, {useState, useEffect} from 'react';
+import React from 'react';
 import FormTemplate from './FormTemplate';
 import serverFetch from '../services/serverFetch';
 import serverPost from '../services/serverPost'
-import missingColumns from '../services/missingColumns'
-import { SettingsOverscanOutlined } from '@mui/icons-material';
 
 // NewRecord  
 export default props => {
@@ -21,9 +19,6 @@ export default props => {
         })
        return constants?{...dbRecord, ...constants}:dbRecord
     }
-
-
-
 
     const replaceOrInsertList = (value, list) => {
         let found = false
@@ -44,25 +39,26 @@ export default props => {
     }    
 
     const handleSaveCallback = reply => {
-        if (reply.status==='OK') {
-            props.setValue({...props.value, id:reply.id})
+        // alert('handleSaveCallback XXXX:' + JSON.stringify(reply))
+        if (reply.status==="OK") {
             if (props.handleRedirect) {
+                props.statusMessage('green', 'Successful insert of record')
                 props.handleRedirect(reply.record)
             } else if (props.handleUpArrow) {
                 props.setList([])
             } if (props.statusMessage) {
+                props.setValue({...props.value, id:reply.id})
                 props.statusMessage('green', 'Sparad i databasen')
             }    
         } else {
-            props.statusMessage('red', 'Error when insering record. Reply message:' + JSON.stringify(reply.message))
+            alert('NewOrSearch: Error when inserting record. Status:' + reply.status + ' message:' + reply.message) 
         }    
     }    
 
-    const handleSave = (value) => {
+    const handleSave = value => {
         // props.statusMessage('green', 'Sätt in i databasen värdet:' + JSON.stringify(value)) 
-        const insertValue = {tableName:tableName, record:_dbRecord(constants, value)}
-        //alert('INSERT VALUE' + JSON.stringify(insertValue))
-        return serverPost('/replaceRow', '', '', insertValue, handleSaveCallback)
+        const insertValue = {tableName, record:_dbRecord(constants, value)}
+        serverPost('/replaceRow', '', '', insertValue, handleSaveCallback)
     }
 
     const fetchRows = searchValues =>
@@ -82,7 +78,9 @@ export default props => {
                 if (props.statusMessage) {props.statusMessage('green', '')}
                 setList(list.sort((a,b) => b.id - a.id))
             } else {
-                if (props.statusMessage) {props.statusMessage('green', 'Not found')}
+                if (props.statusMessage) {
+                    props.statusMessage('green', 'Not found')
+                }
             }   
         })
     }        
@@ -94,7 +92,7 @@ export default props => {
     }    
 
     return (
-        <FormTemplate {...props} handleSave={handleSave} handleSearch={searchFields?handleSearch:undefined} />
+        <FormTemplate {...props} handleSearch={searchFields?handleSearch:undefined} handleSave={handleSave} />
     )    
 }
 

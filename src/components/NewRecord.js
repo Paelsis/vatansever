@@ -61,7 +61,7 @@ export default props => {
                 statusMessage('green', 'Values could not be inserted, reply:' + reply)
             }  
         } else {
-            statusMessage('green', 'Error when insering record. Reply message:' + JSON.stringify(reply))
+            statusMessage('green', 'NewRecord: Error when insering record. Reply message:' + JSON.stringify(reply))
         }    
     }    
 

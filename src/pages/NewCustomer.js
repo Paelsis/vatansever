@@ -3,6 +3,7 @@ import {useNavigate} from 'react-router-dom'
 import NewOrSearch from '../components/NewOrSearch'
 import EditTable from '../components/EditTable'
 import {BUTTONS} from '../services/constants'
+import serverPost from '../services/serverPost'
 
 const styles = {
     container: {
@@ -96,15 +97,22 @@ export default () => {
     const [status, setStatus] = useState({color:'blue'})
     const [value, setValue] = useState(undefined)
 
-    const handleRedirect = record => {
+    const callbackRedirect = (orderId, namn, mobil) => {
+        navigate('/newOrder/' + orderId + '/' + namn + '/' +  mobil) 
+    }
+
+    const handleRowClick = record => {
+        // alert('handleRedirect:' + JSON.stringify(record))
         if (!record.id) {
             alert('ERROR: Denna databas rad sakaden kundens id, kontakta WEB-administratören:' +  JSON.stringify(record))
             navigate('/order')
         } else if (!record.namn) {
             alert('ERROR: Denna databas rad sakaden kundens namn, kontakta WEB-administratören:' +  JSON.stringify(record))
             navigate('/order')
-        } else {
-            navigate('/newOrder/' + record.id + '/' + (record.namn) + '/' +  (record.mobil)) 
+        } else if (record.id ===0) {
+            alert('Here create a new record')
+        } else {     
+            serverPost('/replaceRow', '', '', {tableName:'tbl_order', record:{kundId:record.id}}, value=>{callbackRedirect(value.id, record.namn, record.mobil)})
         }    
     } 
 
@@ -123,9 +131,10 @@ export default () => {
                     fields={fields} 
                     list={list} 
                     setList={setList} 
+                    value={value}
+                    setValue={setValue}
                     statusMessage={statusMessage}  
-                    handleRedirect={handleRedirect}
-                    buttons={BUTTONS.SAVE_AND_PRINT}
+                    buttons={BUTTONS.SAVE|BUTTONS.SAVE_AND_PRINT}
                     />
                 <EditTable 
                     searchView={tableName} 
@@ -133,7 +142,7 @@ export default () => {
                     list={list} 
                     setList={setList} 
                     statusMessage={statusMessage}  
-                    handleRedirect={handleRedirect}
+                    handleRowClick={handleRowClick}
                     />
             <p/>    
             <div style={{color:status.color}}>{status.message}</div>

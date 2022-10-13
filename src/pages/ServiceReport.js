@@ -30,21 +30,14 @@ const fields = [
         type:'text',
         label:'Tekniker',
         name:'tekniker',
-        tooltip:'Om teknikern är annan person än Okhan, Johannes eller Mats',
         required:true,
         notHiddenIf:'annanPerson'
     },
     {
         type:'checkbox',
-        label:'Teknikern är en annan person än de 3 ovan nämnda',
+        label:'Annan',
         name:'annanPerson',
-        tooltip:'Kryssa i denna om teknikern är en annanperson än Okhan, Johannes eller Mats',
-    },
-    {
-        type:'checkbox',
-        label:'Kunden har accepterat reparation efter felsökning',
-        name:'acceptRep',
-        tooltip:'Kunden har accepterat att repation sker efter det att hen fått svar på felsökning',
+        tooltip:'Kryssa i denna om teknikern är en annan person än de som det finns radio-knappar till',
     },
     {
         type:'date',
@@ -59,7 +52,7 @@ const fields = [
         type:'radio',
         label:'Accept via',
         name:'acceptVia',
-        radioValues:['MAIL', 'MUNTLIGT', 'SMS'],
+        radioValues:['SMS', 'MUNTLIGT', 'MAIL'],
         tooltip:'Kunden har kontaktats via denna metod',
         notHiddenIf:'acceptRep',
         required:true,        
@@ -75,7 +68,7 @@ const fields = [
         type:'radio',
         label:'Accept via',
         name:'acceptVia',
-        radioValues:['MAIL', 'MUNTLIGT', 'SMS'],
+        radioValues:['SMS', 'MUNTLIGT', 'MAIL'],
         tooltip:'Kunden har kontaktats via denna metod',
         hiddenIf:'acceptRep',
     },
@@ -99,7 +92,13 @@ const fields = [
     },
     {
         type:'text',
-        label:'Total kostnad',
+        label:'Materialkostnad',
+        name:'belopp',
+        tooltip:'Den totala kostnade inklusive material',
+    },
+    {
+        type:'text',
+        label:'Kostnad',
         name:'belopp',
         tooltip:'Den totala kostnade inklusive material',
     },
@@ -111,7 +110,7 @@ const fields = [
     },
     {
         type:'radio',
-        radioValues:['MAIL', 'MUNTLIGT', 'SMS'],
+        radioValues:['SMS', 'MUNTLIGT', 'MAIL'],
         label:'Kunden har kontaktats för avhämtning via',
         name:'kontaktadVia',
         tooltip:'Kunden har kontaktats för avhämtning via',
@@ -137,7 +136,7 @@ export default () => {
         alert('Har ännu ingensans att gå ...')
     }    
 
-    const handleUpArrow = value => {
+    const handleRowClick = value => {
         // alert('ServiceReport' + JSON.stringify(value))
         setValue(value)
         setList([])
@@ -183,7 +182,7 @@ export default () => {
     return(    
 
         <div style={styles.container}>
-            {constants?constants.id?<h3>{'Service rapport för id:' + constants.id + ' namn:' + constants.namn}</h3>:null:null}
+            {constants?constants.id?<h3>{'Servicerapport för id:' + constants.id + ' namn:' + constants.namn}</h3>:null:null}
             <NewAndSearchLine 
                     searchFields={searchFields}
                     tableName={tableName} 
@@ -198,9 +197,9 @@ export default () => {
                     buttons={BUTTONS.SAVE|BUTTONS.PRINT}
             >
                     {value?value.id?<h3>Service rapport:{value.id}</h3>:null:null} 
-                    {value?value.namn?<span>Namn:{value.namn}</span>:null:null}
+                    {value?value.namn?<span>{value.namn}</span>:null:null}
                     <br/> 
-                    {value?value.mobil?<span>Mobil:{value.mobil}</span>:null:null} 
+                    {value?value.mobil?<span>Tel:{value.mobil}</span>:null:null} 
             </NewAndSearchLine>
             <EditTable 
                     searchFields={searchFields}
@@ -208,7 +207,7 @@ export default () => {
                     list={list} 
                     setList={setList} 
                     statusMessage={statusMessage}  
-                    handleUpArrow={handleUpArrow}
+                    handleRowClick={handleRowClick}
             />
             {status.message?<div style={{color:status.color?status.color:'green'}}>{status.message}</div>:null}
         </div>

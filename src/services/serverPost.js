@@ -7,27 +7,26 @@ const serverPost = (irl, username, password, data, handleReply) => {
     console.log('--- serverPost --- url:', url, ' data:', data);
     axios.post(url, data, {auth: {username, password}})
     .then(response => {
-        const status = response.status?response.status:'No status'
         if (response.status === 200) {
             if (response.data.status) {
                 if (response.data.status ==='OK') {
                     // statusMessage(STATUS_OK, 'OK: database modified successfully (response.data.status=' + response.data.status + 'JSON:'+ JSON.stringify(response.data) + ')');
-                    console.log('response', response)
+                    console.log('response', JSON.stringify(response.data))
                 } else {
-                    console.log('response', response)
+                    console.log('response', JSON.stringify(response.data))
                 }    
             } else {
-                console.log('response', response)
+                console.log('response', JSON.stringify(response.data))
             }
         } else {    
-            console.log('WARNING: serverPost responed back status code:', response.status);
+            console.log('WARNING: serverPost responed back status code:', JSON.stringify(response.data));
         }    
-        return handleReply(response.data);
+        handleReply(response.data);
     })
     .catch((e) => {
         console.log('ERROR: Failed in function serverPost for url ', url);
         console.log('Error message:', e); // Error
-        return handleReply({code:501, status:'ERROR', message:'ERROR: No response when calling irl:' + irl + ' url:' + url});
+        handleReply({status:'ERROR', data:data,  message:e});
     });
 }
 

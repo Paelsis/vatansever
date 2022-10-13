@@ -21,13 +21,19 @@ export default props => {
         setList([])
         setValue({})
     }    
+
+    const handleKeyPress = e => {
+        if (e.key === 'Enter') {
+            handleSearch(value)
+        }
+    }
     
     return(
         <>
         {searchFields?
             <form onSubmit={e=>handleSubmit(e, value)}>
                     {searchFields.map(fld => 
-                        <SearchLineField fld={fld} value={value} setValue={setValue} />
+                        <SearchLineField fld={fld} value={value} setValue={setValue} handleKeyPress={handleKeyPress} />
                     )}
                     {handleSearch?<Button color="inherit" type="button" variant="outlined" onClick={()=>handleSearch(value)} >Sök</Button>:null}
                     <Button color="inherit" type="button" variant="outlined" onClick={()=>handleRensa()}>Rensa</Button>

@@ -60,8 +60,8 @@ export default function App() {
                 <Route path="/newCustomer" element={<NewCustomer />} />
                 <Route path="/serviceReport" element={<ServiceReport />} />
                 <Route path="/extradition" element={<Extradition />} />
-                <Route path="/newOrder/:kundId/:namn" element={<NewOrder />} />
-                <Route path="/newOrder/:kundId/:namn/:mobil" element={<NewOrder />} />
+                <Route path="/newOrder/:orderId/:namn" element={<NewOrder />} />
+                <Route path="/newOrder/:orderId/:namn/:mobil" element={<NewOrder />} />
                 <Route path="signin" element={<FirebaseSignin />} />
                 <Route path="resetPassword" element={<FirebaseResetPassword />} />
                 <Route

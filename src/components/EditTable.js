@@ -105,13 +105,17 @@ export default props => {
             searchFields?
                 <tr>
                     {searchFields.map(fld=>
-                        <td>
+                        <>
                             {(edit[row.id]===true)?
-                                <input type='text' name={fld} value={row[fld.name]?row[fld.name]:null} onChange={e=>handleChange(e, row.id)} />
+                                <td>
+                                    <input type='text' name={fld.name} value={row[fld.name]?row[fld.name]:null} onChange={e=>handleChange(e, row.id)} />
+                                </td>
                             :
-                                row[fld.name]?row[fld.name]:null
+                                <td onClick={()=>props.handleRowClick(row)}>
+                                    {row[fld.name]?row[fld.name]:null}
+                                </td>
                             }
-                        </td>
+                        </>
                     )}
                     {!props.handleUpArrow?
                         <td>
@@ -161,11 +165,11 @@ export default props => {
         list?list.length > 0?
             <div>
                 <>
-                    <table style={{border:'1px solid lightGrey', margin:10, maxWidth:'50vh'}}>
-                        <thead style={{bottomBorder:'1px solid lightGrey', margin:10}}>
+                    <table style={{border:'5px solid lightGrey', borderStyle:'outset', margin:10, maxWidth:'50vh'}}>
+                        <thead style={{bottomBorder:'1px solid lightGrey', borderStyle:'outset', margin:10}}>
                             {renderHeader(list[0])}
                         </thead>
-                        <tbody style={{border:'1px solid lightGrey', margin:10}}>
+                        <tbody style={{border:'1px solid lightGrey', borderStyle:'outset', margin:10}}>
                             {list.map(li=>
                                 renderRow(li)
                             )}    
