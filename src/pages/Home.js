@@ -11,7 +11,7 @@ const styles = {
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor:'black',
+        backgroundColor:'#112200',
         color:'#FFFFA7',
         style:'absolute',
         height:'CALC(100vh \- 50px'
@@ -28,25 +28,23 @@ const styles = {
 
 const Home = () => {
     const navigate = useNavigate()
-    const handleNavigate = lnk => {
+    const handleClickLine = lnk => {
         navigate(lnk)
     }
 
     return(
         <div style={styles.container}>
-                <Button variant="outlined" type="button" style={styles.button}  onClick={()=>handleNavigate('/newCustomer')}>
+                <Button variant="outlined" type="button" style={styles.button}  onClick={()=>handleClickLine('/submission')}>
                     Inlämning
                 </Button>    
                 &nbsp;
-                <Button variant="outlined" type="button" style={styles.button}  onClick={()=>handleNavigate('/serviceReport')}>
+                <Button variant="outlined" type="button" style={styles.button}  onClick={()=>handleClickLine('/serviceReport')}>
                     Servicerapport 
                 </Button>    
                 &nbsp;
-                <Button variant="outlined" type="button" style={styles.button}  onClick={()=>handleNavigate('/extradition')}>
+                <Button variant="outlined" type="button" style={styles.button}  onClick={()=>handleClickLine('/extradition')}>
                     Utlämning 
                 </Button>    
-
-
         </div>
     )
 }

@@ -10,7 +10,7 @@ const styles = {
     alignItems:'center',
     flexDirection:'column',
     justifyContent:'center',
-    color:'green',
+    color:{color:'white', backgroundColor:'green'},
     fontSize:24,
     fontWeight:200,
     height:'50vh'
@@ -40,7 +40,7 @@ const styles = {
 
 const FirebaseSignin = () => {
   const navigate = useNavigate()
-  const [buttonColor, setButtonColor] = useState('green')
+  const [buttonColor, setButtonColor] = useState({color:'white', backgroundColor:'green'})
   const [credentials, setCredentials] = useState(undefined)
   const [uid, setUid] = useState(undefined)
   const auth = getAuth()
@@ -52,7 +52,7 @@ const FirebaseSignin = () => {
       // Signed in 
       const uid = userCredential.user.uid;
       setUid(uid)
-      setButtonColor('green')
+      setButtonColor({color:'white', backgroundColor:'green'})
     })
     .catch(error => {
       const errorCode = error.code;

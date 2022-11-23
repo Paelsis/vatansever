@@ -4,6 +4,7 @@ import RteEditor from './RteEditor'
 import Tooltip from '@mui/material/Tooltip';
 import {isAndroidOperatingSystem} from '../services/isAndroid'
 
+
 const isAndroid = isAndroidOperatingSystem()
 
 export default ({fld, value, setValue, handleKeyPress})=> {
@@ -13,14 +14,7 @@ export default ({fld, value, setValue, handleKeyPress})=> {
     const label = fld.label?fld.label:'No label'
     const tooltip=fld['tooltip']?fld['tooltip']:''
     const handleChange = e => setValue({...value, [e.target.name]:e.target.type==='checkbox'?e.target.checked:e.target.value})
-    //const handleChange = e => alert(JSON.stringify(e.target))
-    const defaultDate = () =>{
-        const today = new Date();
-        const numberOfDaysToAdd = 3;
-        const date = today.setDate(today.getDate() + numberOfDaysToAdd); 
-        const defaultValue = new Date(date).toISOString().split('T')[0] // yyyy-mm-dd
-        return defaultValue
-    }    
+
     if (show) {
         switch (fld.type) {
             case 'checkbox':
@@ -120,7 +114,7 @@ export default ({fld, value, setValue, handleKeyPress})=> {
                         <input {...fld} 
                             type={fld.type} 
                             size={40} 
-                            value={value[fld.name]?value[fld.name]:defaultDate()} 
+                            value={value[fld.name]} 
                             name={fld.name} style={fld.style}
                             placeholder={fld.label?fld.label:fld.name} 
                             onChange={handleChange} 

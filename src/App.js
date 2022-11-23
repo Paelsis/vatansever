@@ -1,9 +1,10 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
-import NewCustomer from "./pages/NewCustomer";
-import NewOrder from "./pages/NewOrder";
+import Submission from "./pages/Submission";
 import ServiceReport from "./pages/ServiceReport";
 import Extradition from "./pages/Extradition";
+import SubmissionReport from "./pages/SubmissionReport";
+import NewOrder from "./pages/NewOrder";
 import AppBar from './components/AppBar'
 import FirebaseAuth from './login/FirebaseAuth'
 import FirebaseSignin from './login/FirebaseSignin';
@@ -57,11 +58,13 @@ export default function App() {
             <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/home" element={<Home />} />
-                <Route path="/newCustomer" element={<NewCustomer />} />
+                <Route path="/submission" element={<Submission />} />
                 <Route path="/serviceReport" element={<ServiceReport />} />
                 <Route path="/extradition" element={<Extradition />} />
+                <Route path="/submissionReport" element={<SubmissionReport />} />
+                <Route path="/newOrder" element={<NewOrder />} />
                 <Route path="/newOrder/:orderId/:namn" element={<NewOrder />} />
-                <Route path="/newOrder/:orderId/:namn/:mobil" element={<NewOrder />} />
+                <Route path="/newOrder/:orderId/:kundId/:namn/:mobil" element={<NewOrder />} />
                 <Route path="signin" element={<FirebaseSignin />} />
                 <Route path="resetPassword" element={<FirebaseResetPassword />} />
                 <Route

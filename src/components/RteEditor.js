@@ -13,7 +13,7 @@ const RteEditor = ({value, onChange}) => {
       onChange(val.toString('html'))
     }
   };
-
+  
   const onMouseLeave = () => {
     onChange(lclValue.toString('html'))
   }

@@ -26,7 +26,7 @@ const styles = {
     border:'none',
     borderBottom: '2px solid ' + color,
     '&:hover':{
-      backgroundColor:'green'
+      backgroundColor:{color:'white', backgroundColor:'green'}
     },
     backgroundColor:'transparent',
     color,
@@ -52,7 +52,7 @@ const FirebaseResetPassword = () =>  {
         alert(error)
     })
   }
-  const color='green' 
+  const color={color:'white', backgroundColor:'green'} 
   return(
     <div style={styles.container(color)}>
       {mailSent?

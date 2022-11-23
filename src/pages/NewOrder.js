@@ -1,10 +1,10 @@
 import React, {useState, useRef, useEffect} from 'react';
-import NewOrSearch from '../components/NewOrSearch'
-import EditTable from '../components/EditTable'
 import {useNavigate, useParams } from 'react-router-dom';
+import StatusMessage from '../components/StatusMessage'
 import serverPost from '../services/serverPost'
-import {BUTTONS} from '../services/constants'
-
+import {search} from '../services/search'
+import FormTemplate from '../components/SearchForm'
+import EditTable from '../components/EditTable'
 
 const styles = {
     container: {
@@ -84,82 +84,152 @@ const fields = [
   
 ]
 
+const extraFields = [
+    {
+        type:'text',
+        label:'Namn',
+        name:'namn',
+        tooltip:'Kundens namn',
+    },
+    {
+        type:'text',
+        label:'Telefon',
+        name:'mobil',
+        tooltip:'Telefonnummer',
+    },
+    {
+        type:'email',
+        label:'Telefon',
+        name:'email',
+        tooltip:'email',
+    },
+]
+
 const searchFields = [
     {label:'Service rapport', name:'id'},
     {name:'felbeskrivning'},
     {name:'mottagare'},
     {name:'namn'},
     {name:'mobil'},	
-    {name:'email'},	
 ]    	
 
-const tableName = 'tbl_order'
+const tableName = 'tbl_service'
+const searchView = 'view_service'
 
 export default () => {
     const params = useParams()
     const navigate = useNavigate()
-    const orderId = params.orderId?params.orderId:undefined
-    const namn = params.namn?params.namn:undefined
-    const mobil = params.mobil?params.mobil:undefined
-    const constants=namn?{orderId, namn}:undefined
+    const orderId = params?params.orderId?params.orderId:undefined:undefined
+    const kundId = params?params.kundId?params.kundId:undefined:undefined
+    const namn = params?params.namn?params.namn:undefined:undefined
+    const mobil = params?params.mobil?params.mobil:undefined:undefined
     const [list, setList] = useState([])
     const [value, setValue] = useState({})
-    const [mode, setMode] = useState(MODE.NEW)
-    const [status, setStatus] = useState({color:'red', message:''})
+    const [statusMessage, setStatusMessage] = useState({color:'green', message:''})
 
-    const handleRedirect = record => {
-        if (!record.id) {
-            alert('ERROR: Denna databas rad sakaden kundens id, kontakta WEB-administratören:' +  JSON.stringify(record))
-            navigate('/service')
-        } else if (!record.namn) {
-            alert('ERROR: Denna databas rad sakaden kundens namn, kontakta WEB-administratören:' +  JSON.stringify(record))
-            navigate('/service')
-        } else {
-            navigate('/newService/' + record.id +  '/' + record.namn  +  '/' + record.mobil)
-        }    
-    }    
-    const statusMessage = (color, message) => {
-        setStatus({color, message})
-        let timer = setTimeout(() => setStatus({}), 3000);
+    const handleStatus = (style, message) => {
+        setStatusMessage({style, message})
+        let timer = setTimeout(() => setStatusMessage({}), 5000);
     }        
 
-    const handleUpArrow = value => {
-        setValue(value)
-        setMode(mode&MODE.SEARCH?MODE.NEW:MODE.SEARCH)
+    const handleSaveCallback = reply => {
+        const {status, record} = reply
+
+        if (status === 'OK') {
+            handleStatus({backgroundColor:'green'}, undefined)
+            navigate('/submission')
+        } else {
+            const message = 'FELMEDDELANDE: Servicerapporten kunde inte uppdateras'
+            handleStatus({backgroundColor:'red'}, message)
+        }    
+    }        
+
+    const handleSave = val => {
+        handleStatus({backgroundColor:'green'}, 'Uppdaterar servicerapporten i databasen')
+        serverPost('/updateRow', '', '', {tableName, record:val, id:orderId?orderId:val.id?val.id:undefined}, handleSaveCallback)
+    }
+
+    const handleClickLine = rec => {
+        setValue(rec)
+    }
+    
+    const handleSearchReply = list => {
+        if (list.length === 0) {
+            handleStatus({backgroundColor:'orange'}, 'Varning: Fick inget resultat vid sökning i database')    
+        } if (list.length === 1) {
+            handleStatus({backgroundColor:'green'}, undefined)    
+            setValue(list[0])
+        } else {
+            handleStatus({backgroundColor:'green'}, undefined)    
+            setList(list)
+        }    
+    }
+
+    const handleSearch = () => {
+        // alert('value:' + JSON.stringify(value))
+        handleStatus({backgroundColor:'green'}, 'Söker ...') 
+        search(searchView, value, handleSearchReply) 
+    }
+
+    const handleReset = () => {
+        setValue({})
         setList([])
     }
 
-    const componentRef = useRef();
+    const buttons=[
+        {
+            style:{color:'black', borderColor:'black'},
+            label:'Print',
+            print:true,
+            required:true,
+            onAfterPrint:()=>handleSave(value)
+        },    
+        {
+            style:{color:'black', borderColor:'black'},
+            label:'Sök',
+            handleClick:handleSearch
+        },    
+        {
+            style:{color:'black', borderColor:'black'},
+            label:'Rensa',
+            handleClick:handleReset
+        },    
+    ]
 
     const headerFields = ['id', 'namn', 'mobil']
+
+    const newFields = namn?fields:[...extraFields, ...fields]
+
     return(    
         <div style={styles.container}>
             <h3>Inlämning</h3>
             <p/>
-                <NewOrSearch
+                <FormTemplate
                     tableName={tableName} 
-                    fields={fields} 
-                    value={orderId?{...value, id:orderId}:value} 
-                    headerFields={headerFields}
+                    fields={newFields} 
+                    value={value} 
                     setValue={setValue}
-                    list={list} 
-                    setList={setList} 
-                    statusMessage={statusMessage}  
-                    buttons={BUTTONS.SAVE_AND_PRINT}
+                    handleStatus={handleStatus}  
+                    handlePressEnter={handleSearch}
+                    buttons={buttons}
                 >
-                    {orderId?<h1 style={{margin:'auto'}}>{orderId}</h1>:null}
-                    {namn?<span style={{fontSize:20}}>{namn}</span>:null} 
+                    {orderId || value.id?<h1 style={{margin:'auto'}}>{value.id?value.id:orderId}</h1>:null}
+                    {namn?<span style={{fontSize:20}}>{value.namn?value.namn:namn}</span>:null} 
                     &nbsp;&nbsp;
-                    {mobil?<span style={{fontSize:20}}>Tel:{mobil}</span>:null} 
-                </NewOrSearch> 
+                    {mobil?<span style={{fontSize:20}}>Tel:{value.mobil?value.mobil:mobil}</span>:null} 
+                </FormTemplate> 
                 <EditTable 
-                    tableName={tableName} 
+                    tableName={tableName}
+                    searchView={searchView} 
+                    searchFields={searchFields}
                     list={list} 
                     setList={setList} 
-                    handleUpArrow={handleUpArrow}
+                    handleStatus={handleStatus}  
+                    handleClickLine={handleClickLine}
                 />
-                <p/>
-                {status.message?<h4 style={{color:status.color?status.color:'green'}}>{status.message}</h4>:null}
+
+            <p/>
+            <StatusMessage style={statusMessage.style} message={statusMessage.message} />
         </div>    
     )
 }

@@ -1,14 +1,17 @@
 import React, {useState, useEffect} from 'react';
-import NewAndSearchLine from '../components/NewAndSearchLine'
-import EditTable from '../components/EditTable'
+import StatusMessage from '../components/StatusMessage'
 import {useNavigate, useParams } from 'react-router-dom';
-import {BUTTONS} from '../services/constants'
+import {defaultDate} from '../services/functions'
 import serverPost from '../services/serverPost'
-
+import {search} from '../services/search'
+import SearchLineTemplate from '../components/SearchLineTemplate'
+import FormTemplate from '../components/SearchForm'
+import EditTable from '../components/EditTable'
 
 const styles = {
     container: {
         display: 'flex',
+        paddingTop:50,
         flexDirection:'column',
         alignItems: 'center',
         justifyContent: 'center',
@@ -23,15 +26,15 @@ const fields = [
         label:'Tekniker',
         name:'tekniker',
         tooltip:'Mottagare av objektet framme vid disken',
+        hiddenIf:'annanPerson',
         required:true,
-        hiddenIf:'annanPerson'
     },
     {
         type:'text',
         label:'Tekniker',
         name:'tekniker',
+        notHiddenIf:'annanPerson',
         required:true,
-        notHiddenIf:'annanPerson'
     },
     {
         type:'checkbox',
@@ -44,9 +47,8 @@ const fields = [
         label:'Datum då kunden accepterar reparation',
         name:'acceptDate',
         tooltip:'Datum då kunden accepterat reparation',
-        notHiddenIf:'acceptRep',
         required:true,        
-
+        hiddenIf:'felsokning'
     },
     {
         type:'radio',
@@ -54,23 +56,14 @@ const fields = [
         name:'acceptVia',
         radioValues:['SMS', 'MUNTLIGT', 'MAIL'],
         tooltip:'Kunden har kontaktats via denna metod',
-        notHiddenIf:'acceptRep',
-        required:true,        
+        hiddenIf:'felsokning',
     },
     {
-        type:'date',
-        label:'Datum då kunden accepterar reparation',
-        name:'acceptDate',
-        tooltip:'Datum då kunden accepterat reparation',
-        hiddenIf:'acceptRep',
-    },
-    {
-        type:'radio',
-        label:'Accept via',
-        name:'acceptVia',
-        radioValues:['SMS', 'MUNTLIGT', 'MAIL'],
-        tooltip:'Kunden har kontaktats via denna metod',
-        hiddenIf:'acceptRep',
+        type:'comment',
+        name:'',
+        label:'Kunden har accepterat reparationen utan att först göra felsökning',
+        tooltip:'Kunden har accepterat reparationen utan att först göra felsökning',
+        notHiddenIf:'felsokning',
     },
     {
         type:'rte',
@@ -93,14 +86,14 @@ const fields = [
     {
         type:'text',
         label:'Materialkostnad',
-        name:'belopp',
-        tooltip:'Den totala kostnade inklusive material',
+        name:'materialkostnad',
+        tooltip:'Kostnad för material',
     },
     {
         type:'text',
         label:'Kostnad',
-        name:'belopp',
-        tooltip:'Den totala kostnade inklusive material',
+        name:'kostnad',
+        tooltip:'Totala kostnaden inklusive material',
     },
     {
         type:'date',
@@ -121,96 +114,168 @@ const fields = [
 const tableName = 'tbl_service'
 const searchView = 'view_service'
 
+const searchFields = [
+    {label:'Nummer', name:'id'},
+    {label:'Felbeskrivning', name:'felbeskrivning'},
+    {label:'Fabrikat', name:'fabrikat'},
+    {label:'Modell', name:'modell'},
+    {label:'Mottagare', name:'mottagare'},
+    {label:'Tekniker', name:'tekniker'},
+    {label:'Namn', name:'namn'},
+    {label:'Telefon', name:'mobil'},	
+]    	
+
+
 export default () => {
     const params = useParams()
     const navigate = useNavigate()
     const [list, setList] = useState([])
-    const [value, setValue] = useState()
-    const [status, setStatus] = useState({})
+    const [value, setValue] = useState({})
+    const [statusMessage, setStatusMessage] = useState({})
     
     const [constants, setConstants] = useState(params)
-    useEffect(()=>setConstants(setConstants(params)), []) 
-        
-    const handleRedirect = record => {
-        //navigate('/order/' + customerId +  '/' + rec.namn)
-        alert('Har ännu ingensans att gå ...')
-    }    
-
-    const handleRowClick = value => {
-        // alert('ServiceReport' + JSON.stringify(value))
-        setValue(value)
-        setList([])
-    }
-    const statusMessage = (color, message) => {
-        setStatus({color, message})
-        let timer = setTimeout(() => setStatus({}), 1000);
-    }
-
-
-    const searchFields = [
-        {label:'Nummer', name:'id'},
-        {label:'Felbeskrivning', name:'felbeskrivning'},
-        {label:'Fabrikat', name:'fabrikat'},
-        {label:'Modell', name:'modell'},
-        {label:'Mottagare', name:'mottagare'},
-        {label:'Tekniker', name:'tekniker'},
-        {label:'Namn', name:'namn'},
-        {label:'Telefon', name:'mobil'},	
-        {label:'Email', name:'email'},	
-    ]    	
-    
    
-    const header = value?{orderid:value.id}:undefined
+    useEffect(()=>{
+        setConstants(setConstants(params))
+        let dates ={}
+        fields.filter(it=>it.type === 'date' && (value[it.name]===null || value[it.name]===undefined)).forEach(it=>{
+                dates = {...dates, [it.name]:defaultDate()}
+        }) 
+        setValue({...dates})
+    }, []) 
 
-    const handleReply = reply =>{
-        // alert(JSON.stringify(reply))
-        if (reply.status === 'OK') {
-            const record = reply.record
-            setValue(record)
-            statusMessage('green', 'Servicerapport för inlämningsnummer ' + record.id + ' har sparats')
+    const handleStatus = (style, message) => {
+        setStatusMessage({style, message})
+    }
+
+    const handleClickLine = rec => {
+        let dates ={}
+        fields.filter(it=>it.type === 'date' && (rec[it.name]===null || rec[it.name]===undefined)).forEach(it=>{
+                dates = {...dates, [it.name]:defaultDate()}
+        }) 
+        // alert('Record=' + JSON.stringify(rec))
+        setValue({...rec, ...dates})
+        setList([])
+    } 
+
+    const handleSaveCallback = reply => {
+        const {status, record} = reply
+
+        if (status === 'OK') {
+            handleStatus({backgroundColor:'green'}, undefined)
         } else {
-            statusMessage('red', 'ERROR: Servicerapport kunde inte sparas')
+            const message = 'FELMEDDELANDE: Servicerapporten kunde inte uppdateras'
+            handleStatus({backgroundColor:'red'}, message)
+        }    
+    }        
+
+    const handleSave = value => {
+        handleStatus({backgroundColor:'green'}, 'Uppdaterar servicerapporten i databasen')
+        serverPost('/updateRow', '', '', {tableName, record:value, id:value.id}, handleSaveCallback)
+    }
+
+    const handleSearchReply = list => {
+        if (list.length === 0) {
+            handleStatus({backgroundColor:'orange'}, 'Varning: Fick inget resultat vid sökning i database')    
+        } if (list.length === 1) {
+            handleStatus({backgroundColor:'green'}, undefined)    
+            const val = list[0]
+            let dates ={}
+            fields.filter(it=>it.type === 'date' && (val[it.name]===null || val[it.name]===undefined)).forEach(it=>{
+                    dates = {...dates, [it.name]:defaultDate()}
+            }) 
+            setValue({...val, ...dates})
+        } else {
+            handleStatus({backgroundColor:'green'}, undefined)    
+            setList(list)
         }    
     }
 
-    const onBeforePrint = record => {
-        const recordSave = {id:record.id}
-        // Save service record
-        serverPost('/replaceRow', '', '', {tableName, record:recordSave}, handleReply)
+    const handleSearch = () => {
+        handleStatus({backgroundColor:'green'}, 'Söker ...') 
+        if (value.id) {
+            let searchFields = {id:value.id}
+        } else {
+
+
+        }
+        search(searchView, searchFields, handleSearchReply) 
     }
 
+    const handleReset = () => {
+        setValue({})
+        setList([])
+    }
+
+    const buttons=[
+        {
+            style:{color:'black', borderColor:'black'},
+            type:'button',
+            label:'Skriv ut',
+            print:true,
+            required:true,
+            onAfterPrint:()=>handleSave(value)
+        },    
+        {
+            style:{color:'black', borderColor:'black'},
+            type:'button',
+            label:'Spara',
+            required:true,
+            handleClick:()=>handleSave(value)
+        },    
+        {
+            style:{color:'black', borderColor:'black'},
+            type:'button',
+            label:'Rensa',
+            handleClick:handleReset
+        },    
+    ]
+
+
+    
     return(    
 
         <div style={styles.container}>
-            {constants?constants.id?<h3>{'Servicerapport för id:' + constants.id + ' namn:' + constants.namn}</h3>:null:null}
-            <NewAndSearchLine 
-                    searchFields={searchFields}
-                    tableName={tableName} 
-                    searchView={searchView} 
-                    value={value} 
-                    header={header}
-                    setValue={setValue}
-                    fields={fields} 
-                    list={list} 
-                    setList={setList} 
-                    statusMessage={statusMessage}
-                    buttons={BUTTONS.SAVE|BUTTONS.PRINT}
-            >
-                    {value?value.id?<h3>Service rapport:{value.id}</h3>:null:null} 
-                    {value?value.namn?<span>{value.namn}</span>:null:null}
-                    <br/> 
-                    {value?value.mobil?<span>Tel:{value.mobil}</span>:null:null} 
-            </NewAndSearchLine>
-            <EditTable 
-                    searchFields={searchFields}
-                    tableName={searchFields} 
-                    list={list} 
-                    setList={setList} 
-                    statusMessage={statusMessage}  
-                    handleRowClick={handleRowClick}
-            />
-            {status.message?<div style={{color:status.color?status.color:'green'}}>{status.message}</div>:null}
+            {value.id?
+                <>
+                    <FormTemplate
+                            buttons={buttons}
+                            tableName={tableName} 
+                            fields={fields} 
+                            value={value} 
+                            setValue={setValue}
+                            handleStatus={handleStatus}  
+                            handlePressEnter={handleSearch}
+                        >
+                            {value.id?<h1 style={{margin:'auto'}}>{value.id}</h1>:null}
+                            {value.namn?<span style={{fontSize:20}}>{value.namn}</span>:null} 
+                            &nbsp;&nbsp;
+                            {value.mobil?<span style={{fontSize:20}}>Tel:{value.mobil}</span>:null} 
+                    </FormTemplate> 
+                    <StatusMessage style={statusMessage.style} message={statusMessage.message} />
+                </>
+            :
+                <>
+                    <SearchLineTemplate 
+                        searchView={searchView}
+                        searchFields={searchFields}
+                        setValue={setValue} 
+                        setList={setList} 
+                        handleStatus={handleStatus}
+                    />
+
+                    <EditTable 
+                        tableName={tableName}
+                        searchView={searchView} 
+                        searchFields={searchFields}
+                        list={list} 
+                        setList={setList} 
+                        handleStatus={handleStatus}  
+                        handleClickLine={handleClickLine}
+                    />
+                    <StatusMessage style={statusMessage.style} message={statusMessage.message} />
+                </>
+            }   
         </div>
     )
-}    
-           
+} 

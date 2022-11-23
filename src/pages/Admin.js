@@ -11,7 +11,7 @@ const styles = {
       alignItems:'center',
       flexDirection:'column',
       justifyContent:'center',
-      color:'green',
+      color:{color:'white', backgroundColor:'green'},
       fontSize:24,
       fontWeight:200,
       height:'50vh'

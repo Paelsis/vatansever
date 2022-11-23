@@ -25,15 +25,15 @@ const styles={
   
 export default props => {
     const [edit, setEdit] = useState([])
-    const {tableName, list, setList, fields, constants, statusMessage} = props;
+    const {tableName, list, setList, fields, constants, handleStatus} = props;
 
         
     const handleReplySave = reply => {
         if (reply.status==='OK') {
             setEdit({})
-            statusMessage('green', 'Data sparade med id=' + reply.id)
+            handleStatus({color:'white', backgroundColor:'green'}, 'Data sparade med id=' + reply.id)
         } else {
-            statusMessage('green', 'Fel vid sparande av data. Meddelande:' + JSON.stringify(reply))
+            handleStatus({color:'white', backgroundColor:'green'}, 'Fel vid sparande av data. Meddelande:' + JSON.stringify(reply))
         }    
     }    
     const handleSave = record => {
@@ -57,17 +57,17 @@ export default props => {
         if (reply.status==='OK') {
             const id=reply.id
             setList(list.filter(it=>it.id !==id))
-            statusMessage('green', 'Rad med id=' + id + ' borttagen')
+            handleStatus({color:'white', backgroundColor:'green'}, 'Rad med id=' + id + ' borttagen')
         } else {
-            statusMessage('green', 'Fel vid borttagande av kund. Meddelande:' + JSON.stringify(reply))
+            handleStatus({color:'white', backgroundColor:'green'}, 'Fel vid borttagande av kund. Meddelande:' + JSON.stringify(reply))
         }    
     }    
     const handleDelete = id => {
         let name = list.find(it=>it.id === id).name
-        let text = "Tag bort bort id=" + id + ' från tabell ' + tableName + "\nVälj OK eller Cancel."
+        let text = 'Tag bort bort id=' + id + ' från tabell ' + (tableName?tableName:'No table') + '\nVälj OK eller Cancel.'
         // eslint-disable-next-line no-restricted-globals
         if (confirm(text)) {
-            statusMessage('green', 'Remove from database ...'); 
+            handleStatus({color:'white', backgroundColor:'green'}, 'Remove from database ...'); 
             serverPost('/deleteRow', '', '', {tableName:'tbl_customer', 'id':id}, handleReplyDelete)
         }
     }
@@ -131,9 +131,9 @@ export default props => {
                 :
                     null        
                 }
-                {props.handleRedirect?
+                {props.handleClickLine?
                     <td>
-                        <OpenInNewIcon onClick={()=>props.handleRedirect(row)} />
+                        <OpenInNewIcon onClick={()=>props.handleClickLine(row)} />
                     </td>
                 :
                     null        

@@ -17,7 +17,7 @@ export default function (irl, username, password, handleResult) {
         handleResult(result);
     })
     .catch(e => {
-        const errorMessage = 'url=' + url + ' ERROR:' + JSON.stringify(e)
+        const errorMessage = 'url= <' + url + '> ERROR:' + JSON.stringify(e)
         alert(errorMessage)
         console.log('(function: functions/fetch) Error message:', errorMessage);
         handleResult([]);

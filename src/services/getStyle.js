@@ -41,7 +41,7 @@ import casaBlanca from '../images/VitaHuset.jpg';
     },
     {
       searchString:'ARRIBA',
-      //style:{backgroundColor:'green'},
+      //style:{backgroundColor:{color:'white', backgroundColor:'green'}},
       style:{color:"#ffe2e6", background: 'linear-gradient(-45deg, #301939 0%, #5491c8 100%'}
     },
     {

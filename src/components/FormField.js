@@ -1,68 +1,61 @@
 
 import React, {useState, useEffect} from 'react';
 import RteEditor from './RteEditor'
-import Tooltip from '@mui/material/Tooltip';
 import {isAndroidOperatingSystem} from '../services/isAndroid'
 import moment from 'moment'
 
 const isAndroid = isAndroidOperatingSystem()
 
 // FormField 
-export default ({fld, key, value, setValue, handleKeyPress})=> {
+const FormField = props => {
+    const {fld, key, value, setValue, handleKeyPress} = props
     const show = (fld.hiddenIf?value[fld.hiddenIf]?false:true:true) && (fld.notHiddenIf?value[fld.notHiddenIf]?true:false:true)
-    const radioValues = fld.radioValues?fld.radioValues.map(it=>it.trim()):fld.values?fld.values:undefined
-    const selectValues = fld.selectValues?fld.selectValues.map(it=>it.trim()):undefined
+    const radioValues = fld.radioValues?fld.radioValues.map(it=>it.trim()):[]
+    const selectValues = fld.selectValues?fld.selectValues.map(it=>it.trim()):[]
     const label = fld.label?fld.label:'No label'
-    const tooltip=fld['tooltip']?fld['tooltip']:''
+    const tooltip=fld.tooltip?fld.tooltip:'Ingen hjälptext'
     const handleChange = e => setValue({...value, [e.target.name]:e.target.type==='checkbox'?e.target.checked:e.target.value})
+    const required = fld.required?true:false
     //const handleChange = e => alert(JSON.stringify(e.target))
-    const handleChangeRte = (fld, val) => setValue({...value, [fld]:val})
-    const defaultDate = () =>{
-        const today = new Date();
-        const date = today.setDate(today.getDate()); 
-        const defaultValue = new Date(date).toISOString().split('T')[0] // yyyy-mm-dd
-        return defaultValue
-    } 
-    // const defaultDate = moment().format()
+
+    //const defaultDate = moment().format()
     if (show) {
         switch (fld.type) {
             case 'checkbox':
                     return(
                         <p>
                             <label>
-                                <Tooltip title={fld['tooltip']?fld['tooltip']:''}>
                                 <input 
                                     key={key}
                                     size={200} 
                                     type={fld.type} 
                                     checked={value[fld.name]?true:false} 
                                     name={fld.name} style={fld.style}  
-                                    required={fld.required} 
+                                    required={required} 
                                     onChange={handleChange}
                                 />
-                                </Tooltip>
-                                {label}&nbsp;&nbsp;&nbsp;&nbsp;{fld.required?<sup style={{color:'red'}}>*</sup>:null}
+                                {label}&nbsp;&nbsp;&nbsp;&nbsp;{required?<sup style={{color:'red'}}>*</sup>:null}
                             </label> 
                         </p>
                     )
             case 'checkboxes':
                 return(
                     <p>
-                        {label}&nbsp;{fld.required?<sup style={{color:'red'}}>*</sup>:null}
+                        <label>
+                                {label}&nbsp;{required?<sup style={{color:'red'}}>*</sup>:null}&nbsp;
+                        </label>    
                         <br/>
                         {fld.names?fld.names.map(name =>
                             <label>
                                 {name}&nbsp;
-                                <Tooltip title={tooltip}>
                                 <input 
                                     key={key}
-                                    keytype={'checkbox'} 
+                                    type={'checkbox'} 
                                     name={name} 
                                     checked={value[fld.name]?true:false} 
-                                    required={fld.required} 
+                                    required={required} 
                                     onChange={handleChange}
                                 />
-                                </Tooltip>
                             </label>
                         ):null}
                     </p> 
@@ -70,13 +63,14 @@ export default ({fld, key, value, setValue, handleKeyPress})=> {
             case 'radio':
                 return(
                     <p>
-                        {label}&nbsp;{fld.required?<sup style={{color:'red'}}>*</sup>:null}
+                        <label>
+                                {label}&nbsp;{required?<sup style={{color:'red'}}>*</sup>:null}&nbsp;
+                        </label>    
                         <br/>
-                        {radioValues?radioValues.map(val =>
+                        {radioValues.map((val, idx) =>
                             <label>
-                                <Tooltip title={fld['tooltip']?fld['tooltip']:''}>
                                 <input 
-                                    key={key}
+                                    key={val + idx}
                                     type={fld.type}
                                     value={val} 
                                     name={fld.name} 
@@ -84,110 +78,144 @@ export default ({fld, key, value, setValue, handleKeyPress})=> {
                                     checked={value[fld.name] === val}
                                     onChange={handleChange}
                                 />
-                                </Tooltip>
                                 &nbsp;{val}
                             </label>
-                        ):[]}
+                        )}
                     </p> 
                 )
             case 'select':
                 return(
-                <p>        
-                    {label}&nbsp;{fld.required?<sup style={{color:'red'}}>*</sup>:null}
-                    <select 
-                        key={key}
-                        name={fld.name} 
-                        value={value[fld.name]} 
-                        required={fld.required} 
-                        onChange={handleChange}
-                    >
-                        <option selected disabled value={""}>Välj</option>
-                        {selectValues?selectValues.map(val => (      
-                            <option value={val}>{val}</option>
-                        )):[]}
-                    </select>
+                     <p>      
+                        <label>
+                                {label}&nbsp;{required?<sup style={{color:'red'}}>*</sup>:null}&nbsp;
+                        </label>    
+                        <br/>
+                        <select 
+                            key={key}
+                            name={fld.name} 
+                            value={value[fld.name]?value[fld.name]:''} 
+                            required={required} 
+                            onChange={handleChange}
+                        >
+                            <option selected disabled value={""}>Välj</option>
+                            {selectValues.map(val => <option value={val}>{val}</option>)}
+                        </select>
                     </p>
                 )
             case 'rte':
                 return(
-                    <label>
-                            {label}&nbsp;{fld.required?<sup style={{color:'red'}}>*</sup>:null}&nbsp;<br/>
-                            {isAndroid?
-                                <textarea 
-                                    key={key}
-                                    rows={5} 
-                                    cols={40} 
-                                    name={fld.name} 
-                                    value={value[fld.name]} 
-                                    onChange={handleChange}
-                                />
-                            :
-                                <RteEditor value={value[fld.name]} name={fld.name} style={fld.style} onChange={val => handleChangeRte(fld.name, val)} />
-                            }
-                    </label>
-                    
+                    <p>
+                        <label>
+                                {label}&nbsp;{required?<sup style={{color:'red'}}>*</sup>:null}&nbsp;
+                        </label>    
+                        <br/>
+                        {isAndroid?
+                            <textarea 
+                                key={key}
+                                rows={5} 
+                                cols={40} 
+                                name={fld.name} 
+                                value={value[fld.name]?value[fld.name]:''} 
+                                onChange={handleChange}
+                                onKeyPress={handleKeyPress}
+                            />
+                        :
+                            <RteEditor 
+                                style={fld.style}
+                                name={fld.name} 
+                                value={value[fld.name]?value[fld.name]:''}
+                                onChange={val => setValue({...value, [fld.name]:val})}
+                            />
+                        }
+                    </p>
                 )    
-                case 'date':
+            case 'date':
                     return(
                         <p>
                             <label>
-                            {label}&nbsp;{fld.required?<sup style={{color:'red'}}>*</sup>:null}&nbsp;<br/>
+                                    {label}&nbsp;{required?<sup style={{color:'red'}}>*</sup>:null}&nbsp;
+                            </label>    
+                            <br/>
                             <input 
                                 key={key}
                                 {...fld} 
                                 type={fld.type} 
                                 size={40}
-                                value={value[fld.name]?value[fld.name]:defaultDate()} 
+                                value={value[fld.name]} 
                                 name={fld.name}
                                 style={fld.style} 
-                                required={fld.required}
+                                required={required}
                                 onChange={handleChange} 
                             />
-                            </label>    
                         </p>
-                        
                     )    
-                case 'textarea':
+            case 'textarea':
                     return(
                         <p>
-                                {label}&nbsp;{fld.required?<sup style={{color:'red'}}>*</sup>:null}&nbsp;<br/>
+                                <label>
+                                        {label}&nbsp;{required?<sup style={{color:'red'}}>*</sup>:null}&nbsp;
+                                </label>    
+                                <br/>
                                 <textarea 
                                     key={key}
                                     rows={5} 
                                     cols={40} 
                                     name={fld.name} 
-                                    required={fld.required} 
-                                    value={value[fld.name]}
+                                    required={required} 
+                                    value={value[fld.name]?value[fld.name]:''}
                                     onChange={handleChange} 
                                     onKeyPress={handleKeyPress} 
                                 />
                        </p>
-                        
                     )    
-            default:
+                case 'comment':
+                        return(
+                            <p>
+                                    <label>
+                                            {label}
+                                    </label>    
+                                    <br/>
+                                    {value[fld.name]?value[fld.name]:''}
+                           </p>
+                        )    
+                default:
                 return(
                     <p>
-                        {label}&nbsp;{fld.required?<sup style={{color:'red'}}>*</sup>:null}&nbsp;<br/>
-                        <Tooltip title={fld['tooltip']?fld['tooltip']:'No help text'}>
-                                <input 
-                                {...fld} 
-                                    key={key}
-                                    type={fld.type}
-                                    size={40}
-                                    value={value[fld.name]?value[fld.name]:''} 
-                                    name={fld.name} style={fld.style} 
-                                    required={fld.required} 
-                                    onChange={handleChange}
-                                    onKeyPress={handleKeyPress}
-                                />
-                        </Tooltip>
+                        <label>
+                                {label}&nbsp;{required?<sup style={{color:'red'}}>*</sup>:null}&nbsp;
+                        </label>    
+                        <br/>
+                        <input 
+                            {...fld} 
+                            key={key}
+                            type={fld.type}
+                            size={40}
+                            name={fld.name} style={fld.style} 
+                            value={value[fld.name]?value[fld.name]:''} 
+                            required={required} 
+                            onChange={handleChange}
+                            onKeyPress={handleKeyPress}
+                        />
                     </p>
                 )
         }
     } else {
-            return(null)
+        return null
     }    
 }
+
+const FormField1 = props => {
+    return(
+    <p>
+        <h1 style={{color:'red'}}>Before</h1>
+        {JSON.stringify(props)}    
+        <h1>After</h1>
+        <p/>
+    </p>
+    )
+}
+
+export default FormField
 
 /*
 export const RenderField1 = ({fld, value, setValue}) => {

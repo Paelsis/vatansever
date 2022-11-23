@@ -3,19 +3,17 @@ import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import HomeIcon from '@mui/icons-material/Home';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Divider from '@mui/material/Divider';
-import MenuList from '@mui/material/MenuList';
-import ListItemIcon from '@mui/material/ListItemIcon';
+//import MenuList from '@mui/material/MenuList';
+//import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import { getAuth, signOut, onAuthStateChanged} from 'firebase/auth';
-import {AuthContext} from "../login/FirebaseAuth"
-import { Navigate, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 
 
@@ -37,7 +35,7 @@ export default function ButtonAppBar() {
       setEmail(user?user.email:undefined)
   }), [])
 
-  const handleNavigate = route => {
+  const handleClickLine = route => {
     navigate(route)
   }
 
@@ -63,6 +61,7 @@ export default function ButtonAppBar() {
         'aria-labelledby': 'basic-button',
       }}
     >
+      <MenuItem onClick={()=>navigate('/submissionReport')}>Inläminingsrapport</MenuItem>
       <MenuItem><ListItemText inset></ListItemText></MenuItem>
       <Divider />
       {email?<MenuItem onClick={()=>handleSignout()}>Signout</MenuItem>
@@ -71,7 +70,7 @@ export default function ButtonAppBar() {
     </Menu>
 
     <Box sx={{ flexGrow: 2}}>
-      <AppBar position="static" sx={{color:'#FFFFA7',  backgroundColor:'#232323'}}>
+      <AppBar position="static" sx={{color:'#FFFFA7',  backgroundColor:'#112200'}}>
         <Toolbar>
           <IconButton
             size="large"
@@ -85,12 +84,12 @@ export default function ButtonAppBar() {
                   aria-controls={open ? 'basic-menu' : undefined}
                   aria-haspopup="true"
                   aria-expanded={open ? 'true' : undefined}
-                  onClick={()=>handleNavigate('/home')}
+                  onClick={()=>handleClickLine('/home')}
             />
           </IconButton>
-          <Typography variant="h5" component="div" sx={{ flexGrow: 1 }}  onClick={()=>handleNavigate('/home')}>
+          <Typography variant="h5" component="div" sx={{ flexGrow: 1 }}  onClick={()=>handleClickLine('/home')}>
           </Typography>
-          <Typography variant="h5" component="div" sx={{ flexGrow: 4 }}  onClick={()=>handleNavigate('/home')}>
+          <Typography variant="h5" component="div" sx={{ flexGrow: 4 }}  onClick={()=>handleClickLine('/home')}>
             {email?'Signed in as:' +  email:undefined}
           </Typography>
           <IconButton

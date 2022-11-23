@@ -10,7 +10,7 @@ const serverPost = (irl, username, password, data, handleReply) => {
         if (response.status === 200) {
             if (response.data.status) {
                 if (response.data.status ==='OK') {
-                    // statusMessage(STATUS_OK, 'OK: database modified successfully (response.data.status=' + response.data.status + 'JSON:'+ JSON.stringify(response.data) + ')');
+                    // handleStatus(STATUS_OK, 'OK: database modified successfully (response.data.status=' + response.data.status + 'JSON:'+ JSON.stringify(response.data) + ')');
                     console.log('response', JSON.stringify(response.data))
                 } else {
                     console.log('response', JSON.stringify(response.data))

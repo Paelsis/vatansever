@@ -25,15 +25,15 @@ const styles={
   
 export default props => {
     const [edit, setEdit] = useState([])
-    const {searchFields, tableName, list, setList, fields, constants, statusMessage} = props;
+    const {searchFields, tableName, list, setList, fields, constants, handleStatus} = props;
 
         
     const handleReplySave = reply => {
         if (reply.status==='OK') {
             setEdit({})
-            statusMessage('green', 'Data sparade med id=' + reply.id)
+            handleStatus({color:'white', backgroundColor:'green'}, 'Data sparade med id=' + reply.id)
         } else {
-            statusMessage('green', 'Fel vid sparande av data. Meddelande:' + JSON.stringify(reply))
+            handleStatus({color:'white', backgroundColor:'green'}, 'Fel vid sparande av data. Meddelande:' + JSON.stringify(reply))
         }    
     }    
     const handleSave = record => {
@@ -56,19 +56,22 @@ export default props => {
     const handleReplyDelete = reply => {
         if (reply.status==='OK') {
             const id=reply.id
-            setList(list.filter(it=>it.id !==id))
-            statusMessage('green', 'Rad med id=' + id + ' borttagen')
+            
+            if (reply.rows) {
+                setList(reply.rows)
+            } 
+            handleStatus({color:'white', backgroundColor:'green'}, reply.message)
         } else {
-            statusMessage('green', 'Fel vid borttagande av kund. Meddelande:' + JSON.stringify(reply))
+            handleStatus({color:'white', backgroundColor:'green'}, 'Fel vid borttagande av kund. Meddelande:' + JSON.stringify(reply))
         }    
     }    
     const handleDelete = id => {
-        let name = list.find(it=>it.id === id).name
-        let text = "Tag bort bort id=" + id + ' från tabell ' + tableName + "\nVälj OK eller Cancel."
+        let obj = list.find(it=>it.id)
+        let text = "Tag bort bort id:" + id + " från tabellen. \n\nNamn:" + (obj?obj.namn?obj.namn:'Saknas':'Saknas') + '\n\nRecord:\n' + JSON.stringify(obj)
         // eslint-disable-next-line no-restricted-globals
         if (confirm(text)) {
-            statusMessage('green', 'Remove from database ...'); 
-            serverPost('/deleteRow', '', '', {tableName:'tbl_customer', 'id':id}, handleReplyDelete)
+            handleStatus({color:'white', backgroundColor:'green'}, 'Remove from table ' + tableName); 
+            serverPost('/deleteRow', '', '', {tableName, 'id':id, 'fetchRows':true}, handleReplyDelete)
         }
     }
 
@@ -103,7 +106,7 @@ export default props => {
     const renderRow = row => {
         return(
             searchFields?
-                <tr>
+                <tr onClick={()=>props.handleClickLine(row)}>
                     {searchFields.map(fld=>
                         <>
                             {(edit[row.id]===true)?
@@ -111,13 +114,13 @@ export default props => {
                                     <input type='text' name={fld.name} value={row[fld.name]?row[fld.name]:null} onChange={e=>handleChange(e, row.id)} />
                                 </td>
                             :
-                                <td onClick={()=>props.handleRowClick(row)}>
+                                <td>
                                     {row[fld.name]?row[fld.name]:null}
                                 </td>
                             }
                         </>
                     )}
-                    {!props.handleUpArrow?
+                    {toggleEdit?
                         <td>
                             {edit[row.id]===true?<SaveIcon onClick={()=>toggleEdit(row.id)} />:<EditIcon onClick={()=>toggleEdit(row.id)} />}
                         </td>
@@ -127,20 +130,6 @@ export default props => {
                     {handleDelete?
                         <td>
                             <DeleteIcon onClick={()=>handleDelete(row.id)} />
-                        </td>
-                    :
-                        null        
-                    }
-                    {props.handleUpArrow?
-                        <td>
-                            <ArrowUpwardIcon onClick={()=>props.handleUpArrow(row)} />
-                        </td>
-                    :
-                        null        
-                    }
-                    {props.handleRedirect?
-                        <td>
-                            <OpenInNewIcon onClick={()=>props.handleRedirect(row)} />
                         </td>
                     :
                         null        

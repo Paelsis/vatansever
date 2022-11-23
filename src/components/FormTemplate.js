@@ -1,10 +1,16 @@
 import React, {useState, useRef, useEffect} from 'react';
+import ReactToPrint from 'react-to-print';
+import { useReactToPrint } from 'react-to-print';
 import { useNavigate } from 'react-router-dom';
-import Button from '@mui/material/Button';
+import Button, { buttonClasses } from '@mui/material/Button';
 import FormField from './FormField';
 import getTypeFromColumnType from '../services/getTypeFromColumnType'
-import {BUTTONS} from '../services/constants'
-import ReactToPrint from 'react-to-print';
+import {defaultDate} from '../services/functions'
+import serverFetch from '../services/serverFetch';
+import serverPost from '../services/serverPost'
+import {search} from '../services/search'
+import PrintComponent from './PrintComponent';
+import { mergeBreakpointsInOrder } from '@mui/system';
 
 
 const TEXTS={
@@ -19,62 +25,109 @@ const getField = column => {
 
 // FormTemplate.js
 export default props => {
+    const {fields, buttons, value, setValue} = props
     const componentRef=useRef()
-    const navigate = useNavigate()
-    const [value_local, setValue_local] = useState({})
-    const {fields, handleSearch, setList, buttons, handleSave, setStatus} = props
-    const value = props.value?props.value:value_local
-    const setValue = props.setValue?props.setValue:setValue_local
-
-    const handleRensa = () => {
-        setList([])
-        setValue({})
-    }    
-
     const handleKeyPress = e => {
-        if (e.key === 'Enter') {
-            handleSearch(value)
+        if (e.key === 'Enter' && !!props.handlePressEnter) {
+            props.handlePressEnter()
         }
     }
+
+
+    const PrintComponent = props => {
+        const uniqueFields = () => {
+            let unique = [fields[0]]    
+            for (let i=1; i < fields.length; i++) {
+                let found = false;
+                for (let j=0; j <= i-1; j++) {
+                    if (fields[i].label===fields[j].label) {
+                        found = true
+                    }    
+                }
+                if (!found) {
+                    unique = [...unique, fields[i]]
+                }    
+            }
+            return unique                        
+        }    
+        return(    
+            <div>
+                {props.children}
+                <p/>
+                <tab>
+                {uniqueFields().map(fld=>
+                    value[fld.name]?
+                        <tr>
+                            <td style={{overflowWrap:'break-word', width:80}} >{fld.label}</td><td>{<div dangerouslySetInnerHTML={{__html:value[fld.name]}}/>}</td>            
+                        </tr>
+                    :
+                        null
+                )}    
+                </tab>
+            </div>
+        )
+    }
     
+    const disabled = fields?fields.map(fld => fld.required?fld.required===true?value[fld.name]?false:true:false:false).find(it=>it === true)?true:undefined:undefined    
     return(
-        <div>
+        <div>   
                 <form>
-                    <div ref={componentRef}>
-                    {props.children}
-                    {fields.map(fld => 
-                        <FormField key={fld} fld={fld} value={value} setValue={setValue} handleKeyPress={handleKeyPress} />
-                    )}
+                    <div style={{display:'none'}}>
+                        <div ref={componentRef}>
+                            <PrintComponent {...props} />
+                        </div>
                     </div>
-                    {handleSearch?<><Button color="inherit" type="button" variant="outlined" onClick={()=>handleSearch(value)} >Sök</Button>&nbsp;</>:null}
-                    {buttons&BUTTONS.SAVE?<><Button color="inherit" type="button" variant="outlined" onClick={()=>handleSave(value)} >Spara</Button>&nbsp;</>:null}    
-                    {buttons&BUTTONS.PRINT?
+                    <div>
+                        {props.children}
+                        {fields.map((fld, index) => 
+                            <>
+                                <FormField key={index}  fld={fld} value={value} setValue={setValue} handleKeyPress={handleKeyPress} />
+                            </>
+                        )}
+                    </div>
+                    {buttonClasses?
                         <>
-                        <ReactToPrint
-                            trigger={() => <Button color="inherit" type="button" variant="outlined">Skriv ut</Button>}
-                            onAfterPrint={()=>navigate('/home')}
-                            onPrintError={()=>setStatus('red', 'Print failed')}
-                            content={() => componentRef.current} 
-                        />
-                        &nbsp;
+                            {buttons.map(button =>
+                                <span style={button.style}>
+                                    {button.print?
+                                        <ReactToPrint
+                                            trigger={() => 
+                                                <Button
+                                                    variant="outlined" 
+                                                    color="inherit" 
+                                                    type={button.type} 
+                                                    disabled={button.required?disabled:false}
+                                                >
+                                                    {button.label}
+                                                </Button>
+                                            }
+                                            content={()=>componentRef.current}
+                                            onAfterPrint={button.onAfterPrint}
+                                        />    
+                                    :
+                                        <Button 
+                                            variant="outlined" 
+                                            color="inherit" 
+                                            type={button.type} 
+                                            disabled={button.required?disabled:false}
+                                            onClick={button.handleClick}
+                                        >
+                                            {button.label}
+                                        </Button>
+                                    }                       
+                                    &nbsp;
+
+                                </span>
+                            )}
                         </>
-                    :null}
-                    {buttons&BUTTONS.SAVE_AND_PRINT?
-                        <>
-                        <ReactToPrint
-                            trigger={() => <Button color="inherit" type="button" variant="outlined">Skriv ut</Button>}
-                            onAfterPrint={()=>navigate('/home')}
-                            onPrintError={()=>setStatus('red', 'Print failed')}
-                            content={() => componentRef.current} 
-                        />
-                        &nbsp;
-                        </>
-                    :null}
-                    <Button color="inherit" type="button" variant="outlined" onClick={()=>handleRensa()}>Rensa</Button>
+                    :<h1>No buttons</h1>}    
                 </form>
         </div>
     )
 }
+
+
+//{JSON.stringify(fld)}
 
 
 

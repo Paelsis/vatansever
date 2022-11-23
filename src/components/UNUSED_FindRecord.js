@@ -1,5 +1,4 @@
 import React, {useState, useEffect} from 'react';
-import Search from './Search';
 import ShowTable from './ShowTable';
 
 const styles={
