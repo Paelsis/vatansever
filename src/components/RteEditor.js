@@ -1,10 +1,13 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import RichTextEditor, {createEmptyValue, createValueFromString} from 'react-rte';
 
 const RteEditor = ({value, onChange}) => {
   //const [lclValue, setLclValue]=useState(createEmptyValue())
-  const [lclValue, setLclValue]=useState(value?createValueFromString(value, 'html'):createEmptyValue())
-  const onChangeLocal = (val) => {
+
+  const [lclValue, setLclValue]=useState(createValueFromString(value, 'html'))
+  //useEffect(()=>{value?createValueFromString(value, 'html'):createEmptyValue()}, [value])
+  
+  const onChangeLocal = val => {
     setLclValue(val)
     if (onChange) {
       // Send the changes up to the parent component as an HTML string.
@@ -13,7 +16,7 @@ const RteEditor = ({value, onChange}) => {
       onChange(val.toString('html'))
     }
   };
-  
+
   const onMouseLeave = () => {
     onChange(lclValue.toString('html'))
   }
@@ -24,7 +27,7 @@ const RteEditor = ({value, onChange}) => {
           value={lclValue}
           onChange={onChangeLocal} 
           onMouseLeave={onMouseLeave}
-        />  
+          />  
       </>
   );
 }

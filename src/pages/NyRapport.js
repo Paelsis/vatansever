@@ -5,6 +5,10 @@ import serverPost from '../services/serverPost'
 import {search} from '../services/search'
 import FormTemplate from '../components/SearchForm'
 import EditTable from '../components/EditTable'
+import {PrintKvitto, PrintLapp, OrderHeader} from '../components/PrintComponentVatansever'
+import moment from 'moment'
+import logo from '../images/logo.png'
+import {useReactToPrint} from 'react-to-print'
 
 const styles = {
     container: {
@@ -79,6 +83,7 @@ const fields = [
         type:'textarea',
         label:'Felbeskrivning',
         name:'felbeskrivning',
+        required:true,
         tooltip:'Beskrivning av felet',
     },
   
@@ -116,6 +121,9 @@ const searchFields = [
 const tableName = 'tbl_service'
 const searchView = 'view_service'
 
+moment.locale('sv', {week:{dow : 1}})
+
+
 export default () => {
     const params = useParams()
     const navigate = useNavigate()
@@ -126,6 +134,9 @@ export default () => {
     const [list, setList] = useState([])
     const [value, setValue] = useState({})
     const [statusMessage, setStatusMessage] = useState({color:'green', message:''})
+    const componentRefKvitto = useRef();
+    const componentRefLapp = useRef();
+
 
     const handleStatus = (style, message) => {
         setStatusMessage({style, message})
@@ -137,7 +148,7 @@ export default () => {
 
         if (status === 'OK') {
             handleStatus({backgroundColor:'green'}, undefined)
-            navigate('/submission')
+            navigate('/home')
         } else {
             const message = 'FELMEDDELANDE: Servicerapporten kunde inte uppdateras'
             handleStatus({backgroundColor:'red'}, message)
@@ -176,19 +187,35 @@ export default () => {
         setList([])
     }
 
+    const handlePrintKvitto = useReactToPrint({
+      content: () => componentRefKvitto.current,
+    });
+
+    const handlePrintLapp = useReactToPrint({
+        content: () => componentRefLapp.current,
+      });
+    
+  
     const buttons=[
         {
             style:{color:'black', borderColor:'black'},
-            label:'Print',
-            print:true,
+            label:'Lapp',
             required:true,
-            onAfterPrint:()=>handleSave(value)
+            handleClick:handlePrintLapp
         },    
+        {
+            style:{color:'black', borderColor:'black'},
+            label:'Kvitto',
+            required:true,
+            handleClick:handlePrintKvitto
+        },    
+        /*
         {
             style:{color:'black', borderColor:'black'},
             label:'Sök',
             handleClick:handleSearch
-        },    
+        },
+        */    
         {
             style:{color:'black', borderColor:'black'},
             label:'Rensa',
@@ -200,9 +227,13 @@ export default () => {
 
     const newFields = namn?fields:[...extraFields, ...fields]
 
+    const now = moment().format('Do MMM YY')
+
     return(    
         <div style={styles.container}>
             <h3>Inlämning</h3>
+            <PrintKvitto  ref={componentRefKvitto} orderId={orderId} namn={namn} mobil={mobil} value={value} />
+            <PrintLapp  ref={componentRefLapp} orderId={orderId} namn={namn} mobil={mobil} value={value} />
             <p/>
                 <FormTemplate
                     tableName={tableName} 
@@ -213,10 +244,7 @@ export default () => {
                     handlePressEnter={handleSearch}
                     buttons={buttons}
                 >
-                    {orderId || value.id?<h1 style={{margin:'auto'}}>{value.id?value.id:orderId}</h1>:null}
-                    {namn?<span style={{fontSize:20}}>{value.namn?value.namn:namn}</span>:null} 
-                    &nbsp;&nbsp;
-                    {mobil?<span style={{fontSize:20}}>Tel:{value.mobil?value.mobil:mobil}</span>:null} 
+                    <OrderHeader orderId={orderId} namn={namn} mobil={mobil} value={value} />
                 </FormTemplate> 
                 <EditTable 
                     tableName={tableName}
@@ -233,3 +261,14 @@ export default () => {
         </div>    
     )
 }
+
+/*
+<img style={{width:300}} src={logo} />
+<p/>
+{orderId || value.id?<span style={{margin:'auto', fontSize:48}}>{(value.id?value.id:orderId)}</span>:null}
+<span style={{marginLeft:50, fontSize:24}}>{now}</span>
+<br/>
+{namn?<span style={{fontSize:20}}>{value.namn?value.namn:namn}</span>:null} 
+&nbsp;&nbsp;
+{mobil?<span style={{fontSize:20}}>Tel:{value.mobil?value.mobil:mobil}</span>:null} 
+*/

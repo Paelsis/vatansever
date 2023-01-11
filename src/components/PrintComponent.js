@@ -1,29 +1,37 @@
-import React, { useRef } from 'react';
-import ReactToPrint from 'react-to-print';
+import React from 'react';
 
-const PrintComponent = props => {
-  const {restProps, componentToPrint} = props
-  const ComponentToPrint = componentToPrint
-  const componentRef = useRef();
-  return (
-    <>
-      <ReactToPrint
-        trigger={() => <button>Print this out!</button>}
-        content={() => componentRef.current}
-      />
-      <div ref={componentRef}>
-        <ComponentToPrint {...restProps} />
-      </div>  
-    </>
-  );
-};
-
-const TestComponent = () => <h1>Hello 01234567889</h1>
-export const PrintTest = () => {
-
-    return(
-          <PrintComponent componentToPrint={TestComponent} />
-    )      
+// Print first children components and then unique fields
+export default props => {
+  const {fields, value, children} = props
+  const uniqueFields = () => {
+      let unique = [fields[0]]    
+      for (let i=1; i < fields.length; i++) {
+          let found = false;
+          for (let j=0; j <= i-1; j++) {
+              if (fields[i].label===fields[j].label) {
+                  found = true
+              }    
+          }
+          if (!found) {
+              unique = [...unique, fields[i]]
+          }    
+      }
+      return unique
+  }    
+  return(    
+      <div>
+          {children}
+          <p/>
+          <tab>
+          {uniqueFields().map(fld=>
+              value[fld.name]?
+                  <tr>
+                      <td style={{overflowWrap:'break-word', width:80}} >{fld.label}</td><td>{<div dangerouslySetInnerHTML={{__html:value[fld.name]}}/>}</td>            
+                  </tr>
+              :
+                  null
+          )}    
+          </tab>
+      </div>
+  )
 }
-
-export default PrintComponent

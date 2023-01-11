@@ -110,7 +110,7 @@ export default () => {
     }
 
     const handleNavigate = (orderId, kundId, namn, mobil) => {
-        const irl = '/newOrder/' + orderId + '/' + kundId + '/' + namn +'/' + mobil
+        const irl = '/nyRapport/' + orderId + '/' + kundId + '/' + namn +'/' + mobil
         navigate(irl)
     }
 
@@ -168,6 +168,7 @@ export default () => {
 
 
     const buttons=[
+        
         {
             style:{color:'black', borderColor:'black'},
             type:'button',

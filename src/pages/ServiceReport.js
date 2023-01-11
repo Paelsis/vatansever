@@ -9,13 +9,38 @@ import FormTemplate from '../components/SearchForm'
 import EditTable from '../components/EditTable'
 
 const styles = {
-    container: {
+    container0: {
         display: 'flex',
-        paddingTop:50,
         flexDirection:'column',
         alignItems: 'center',
         justifyContent: 'center',
         maxWidth:'100%', 
+    },
+    container:{
+        display:'flex',
+        paddingTop:50,
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        //backgroundColor:'#112200',
+        //color:'#FFFFA7',
+        // height:'calc(100vh \- 50px)'
+    },
+    row:{
+        display:'flex',
+        backgroundColor:'#112200',
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+
+    },
+    col:{
+        display:'flex',
+        paddingTop:50,
+        backgroundColor:'#112200',
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
     },
 }
 
@@ -256,24 +281,23 @@ export default () => {
                 </>
             :
                 <>
-                    <SearchLineTemplate 
-                        searchView={searchView}
-                        searchFields={searchFields}
-                        setValue={setValue} 
-                        setList={setList} 
-                        handleStatus={handleStatus}
-                    />
-
-                    <EditTable 
-                        tableName={tableName}
-                        searchView={searchView} 
-                        searchFields={searchFields}
-                        list={list} 
-                        setList={setList} 
-                        handleStatus={handleStatus}  
-                        handleClickLine={handleClickLine}
-                    />
-                    <StatusMessage style={statusMessage.style} message={statusMessage.message} />
+                        <SearchLineTemplate 
+                            searchView={searchView}
+                            searchFields={searchFields}
+                            setValue={setValue} 
+                            setList={setList} 
+                            handleStatus={handleStatus}
+                        />
+                        <EditTable 
+                            tableName={tableName}
+                            searchView={searchView} 
+                            searchFields={searchFields}
+                            list={list} 
+                            setList={setList} 
+                            handleStatus={handleStatus}  
+                            handleClickLine={handleClickLine}
+                        />
+                        <StatusMessage style={statusMessage.style} message={statusMessage.message} />
                 </>
             }   
         </div>

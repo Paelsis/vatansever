@@ -34,7 +34,7 @@ export default props => {
     }
 
 
-    const PrintComponent1 = props => {
+    const PrintComponent = props => {
         const uniqueFields = () => {
             let unique = [fields[0]]    
             for (let i=1; i < fields.length; i++) {
@@ -48,7 +48,7 @@ export default props => {
                     unique = [...unique, fields[i]]
                 }    
             }
-            return unique
+            return unique                        
         }    
         return(    
             <div>
@@ -81,7 +81,7 @@ export default props => {
                         {props.children}
                         {fields.map((fld, index) => 
                             <>
-                                <FormField key={index}  fld={fld} value={value} setValue={setValue} handleKeyPress={handleKeyPress} />
+                                <ValueField key={index}  fld={fld} value={value} setValue={setValue} handleKeyPress={handleKeyPress} />
                             </>
                         )}
                     </div>

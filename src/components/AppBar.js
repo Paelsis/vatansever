@@ -61,7 +61,7 @@ export default function ButtonAppBar() {
         'aria-labelledby': 'basic-button',
       }}
     >
-      <MenuItem onClick={()=>navigate('/submissionReport')}>Inläminingsrapport</MenuItem>
+      <MenuItem onClick={()=>navigate('/installningar')}>Inställningar</MenuItem>
       <MenuItem><ListItemText inset></ListItemText></MenuItem>
       <Divider />
       {email?<MenuItem onClick={()=>handleSignout()}>Signout</MenuItem>

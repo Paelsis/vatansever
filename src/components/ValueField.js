@@ -30,8 +30,7 @@ const FormField = props => {
                                     size={200} 
                                     type={fld.type} 
                                     checked={value[fld.name]?true:false} 
-                                    name={fld.name} 
-                                    style={fld.style}  
+                                    name={fld.name} style={fld.style}  
                                     required={required} 
                                     onChange={handleChange}
                                 />
@@ -121,12 +120,10 @@ const FormField = props => {
                                 onKeyPress={handleKeyPress}
                             />
                         :
-
                             <RteEditor 
                                 style={fld.style}
                                 name={fld.name} 
                                 value={value[fld.name]?value[fld.name]:''}
-                                required={fld.required}
                                 onChange={val => setValue({...value, [fld.name]:val})}
                             />
                         }

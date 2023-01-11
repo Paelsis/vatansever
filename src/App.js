@@ -1,10 +1,11 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
-import Submission from "./pages/Submission";
+import Installningar from "./pages/Installningar";
+import Inlamning from "./pages/Inlamning";
 import ServiceReport from "./pages/ServiceReport";
-import Extradition from "./pages/Extradition";
+import Utlamning from "./pages/Utlamning";
 import SubmissionReport from "./pages/SubmissionReport";
-import NewOrder from "./pages/NewOrder";
+import NyRapport from "./pages/NyRapport";
 import AppBar from './components/AppBar'
 import FirebaseAuth from './login/FirebaseAuth'
 import FirebaseSignin from './login/FirebaseSignin';
@@ -58,13 +59,14 @@ export default function App() {
             <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/home" element={<Home />} />
-                <Route path="/submission" element={<Submission />} />
+                <Route path="/inlamning" element={<Inlamning />} />
                 <Route path="/serviceReport" element={<ServiceReport />} />
-                <Route path="/extradition" element={<Extradition />} />
+                <Route path="/utlamning" element={<Utlamning />} />
                 <Route path="/submissionReport" element={<SubmissionReport />} />
-                <Route path="/newOrder" element={<NewOrder />} />
-                <Route path="/newOrder/:orderId/:namn" element={<NewOrder />} />
-                <Route path="/newOrder/:orderId/:kundId/:namn/:mobil" element={<NewOrder />} />
+                <Route path="/installningar" element={<Installningar />} />
+                <Route path="/nyRapport" element={<NyRapport />} />
+                <Route path="/nyRapport/:orderId/:namn" element={<NyRapport />} />
+                <Route path="/nyRapport/:orderId/:kundId/:namn/:mobil" element={<NyRapport />} />
                 <Route path="signin" element={<FirebaseSignin />} />
                 <Route path="resetPassword" element={<FirebaseResetPassword />} />
                 <Route

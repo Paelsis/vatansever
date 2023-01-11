@@ -8,7 +8,7 @@ import Button from '@mui/material/Button';
 const styles = {
     container:{
         display:'flex',
-        flexDirection: 'row',
+        flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor:'#112200',
@@ -16,7 +16,20 @@ const styles = {
         style:'absolute',
         height:'CALC(100vh \- 50px'
     },
+    row:{
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    col:{
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
     button:{
+        marginLeft:'5px',
+        marginRight:'5px',
+        marginBottom:'10px',
         borderWidth:'2px',
         height:50,
         color:'#FFFFA7',
@@ -34,17 +47,20 @@ const Home = () => {
 
     return(
         <div style={styles.container}>
-                <Button variant="outlined" type="button" style={styles.button}  onClick={()=>handleClickLine('/submission')}>
-                    Inlämning
-                </Button>    
-                &nbsp;
+                <div style={styles.row}>
+                    <Button variant="outlined" type="button" style={styles.button}  onClick={()=>handleClickLine('/inlamning')}>
+                        Inlämning
+                    </Button>    
+                    <Button variant="outlined" type="button" style={styles.button}  onClick={()=>handleClickLine('/utlamning')}>
+                        Utlämning 
+                    </Button>    
+                </div>
+                <p/>
+                <div style={styles.col}>
                 <Button variant="outlined" type="button" style={styles.button}  onClick={()=>handleClickLine('/serviceReport')}>
                     Servicerapport 
                 </Button>    
-                &nbsp;
-                <Button variant="outlined" type="button" style={styles.button}  onClick={()=>handleClickLine('/extradition')}>
-                    Utlämning 
-                </Button>    
+                </div>
         </div>
     )
 }
